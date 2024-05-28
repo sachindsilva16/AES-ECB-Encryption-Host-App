@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES with ECB Technique</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- MAIN BODY CONTAINER  -->
+    <div class="container mx-auto py-10 ">
+
+        <!-- BORDER FOR MAIN HEADING  -->
+        <div class="mx-auto my-auto mb-6 mx-10 border border-gray-300 rounded-xl shadow-md">
+
+            <!-- MAIN HEADING  -->
+            <h1 class="text-3xl font-bold text-center my-2 font-heading text-gray-400 select-none">AES Encryption & Decryption</h1>
+
+
+        </div>
+
+        <!-- MAIN SECTION : 1 -->
+        <div class="grid grid-cols-2 gap-4">
+
+            <!-- ENCRYPTION SECTION  -->
+            <div class="p-6 bg-white rounded-lg shadow-md">
+
+                <!-- SIDE HEADING  -->
+                <h2 class="text-xl font-semibold mb-3 font-body select-none">AES Encryption with ECB Technique</h2>
+
+                <!--INPUT TEXT INPUT FOR ENCRYPTING...  -->
+                <textarea name="inputTextForEncryption" id="inputText"
+                    class="w-full h-32 border border-gray-300 rounded-md p-2 mb-3 font-body placeholder-gray-500 placeholder-opacity-50"
+                    placeholder="Enter text to encrypt..."></textarea>
+
+                    <!-- BUTTON FOR ENCRYPTION -->
+                <button
+                    class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none">Encrypt</button>
+            </div>
+
+            <!-- DECRYPTION SECTION  -->
+            <div class="p-6 bg-white rounded-lg shadow-md">
+
+                <!-- SIDE HEADING  -->
+                <h2 class="text-xl font-semibold mb-3 font-body select-none">AES Decryption with ECB Technique</h2>
+
+                <!-- INPUT TEXT FIELD FOR DECRYPTING...  -->
+                <textarea name="inputTextForDecryption" id="encryptedText" class="w-full h-32 border border-gray-300 rounded-md p-2 mb-3 font-body placeholder-gray-500 placeholder-opacity-50" placeholder="Enter encrypted text..."></textarea>
+                <button class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:scale-105 duration-500 transform select-none">Decrypt</button>
+            </div>
+        </div>
+
+
+        
+
+
+    </div>
+</body>
+
+</html>
