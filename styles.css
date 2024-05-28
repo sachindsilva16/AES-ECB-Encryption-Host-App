@@ -1,9 +1,17 @@
-.font-heading{
-    font-family: "Inter",sans-serif;
+.font-heading {
+    font-family: "Inter", sans-serif;
     font-weight: bold;
 }
 
-.font-body{
-    font-family: "Inter",sans-serif;
-    
+.font-body {
+    font-family: "Inter", sans-serif;
+
+}
+
+.font-footer {
+    font-family: "Inter", sans-serif;
+}
+
+.fa-fw{
+    padding-left: 0px;
 }
