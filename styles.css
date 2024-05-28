@@ -15,3 +15,9 @@
 .fa-fw{
     padding-left: 0px;
 }
+
+
+.error {
+    border-color: red !important;
+    color: red !important;
+}
