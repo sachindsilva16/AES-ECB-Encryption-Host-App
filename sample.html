@@ -1,0 +1,201 @@
+//Serial Communication 1//
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script> <!--import crypto-js library-->
+<title>STM32 Serial Communication Tool</title>
+<style>
+    /* Add your CSS styles here */
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .container {
+        margin: 20px auto 20px auto;
+        width: 80%;
+        max-width: 600px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    #connectionStatus {
+        margin-bottom: 10px;
+    }
+    #receivedData {
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 3px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>STM32 Serial Communication Tool</h2>
+    <form id="serialForm">
+        <label for="inputData">Enter data to send:</label>
+        <textarea id="inputData" name="inputData" rows="4"></textarea>
+        <button type="button" onclick="connect()">Connect</button>
+        <button type="button" onclick="sendEncryptedData()">Send Encrypted Data</button>
+    </form>
+    <div id="connectionStatus">Connection Status: <span id="status">Disconnected</span></div>
+    <hr>
+    <div>
+        <label for="receivedData">Received Decrypted Data:</label>
+        <div id="receivedData"></div>
+    </div>
+</div>
+
+<script>
+    let port;
+    let receivedData = "";
+
+    async function sendEncryptedData() {
+        const inputData = document.getElementById("inputData").value;
+        const key = "your_secret_key"; // Change this to your encryption key
+        const encryptedData = encryptData(inputData, key);
+        try {
+            if (port && port.writable) {
+                const writer = port.writable.getWriter();
+                const formattedData = formatData(encryptedData);
+                const dataArray = new TextEncoder().encode(formattedData);
+                await writer.write(dataArray);
+                console.log("Encrypted Data sent:", formattedData);
+                writer.releaseLock();
+            } else {
+                console.error("Port is not initialized or not writable");
+            }
+        } catch (error) {
+            console.error("Error sending encrypted data:", error);
+        }
+    }
+
+    function formatData(data) {
+        return data.trim();
+    }
+
+    async function connect() {
+        try {
+            port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
+            console.log("Port:", port);
+            await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+            console.log("Port opened:", port.getInfo());
+            document.getElementById("status").innerText = "Connected";
+            port.addEventListener("connect", readDataFromPort); // Add event listener here
+        } catch (error) {
+            console.error("Error connecting to port:", error);
+            document.getElementById("status").innerText = "Disconnected";
+        }
+    }
+
+    function encryptData(data, key) {
+        return CryptoJS.AES.encrypt(data, key).toString();
+    }
+
+    async function sendDataToBoard(data) {
+        try {
+            if (port && port.writable) {
+                const writer = port.writable.getWriter();
+                const formattedData = formatData(data);
+                const dataArray = new TextEncoder().encode(formattedData);
+                await writer.write(dataArray);
+                console.log("Data sent:", formattedData);
+                writer.releaseLock();
+            } else {
+                console.error("Port is not initialized or not writable");
+            }
+        } catch (error) {
+            console.error("Error sending data:", error);
+        }
+    }
+
+    function decryptData(encryptedData, key) {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+        return bytes.toString(CryptoJS.enc.Utf8);
+    }
+
+    // Function to handle received data
+    async function handleReceivedData(data) {
+        const key = "your_secret_key"; // Change this to your encryption key
+        const decryptedData = await decryptData(data, key);
+        displayDecryptedData(decryptedData);
+    }
+
+    // Function to decrypt data
+    async function decryptData(encryptedData, key) {
+        return new Promise((resolve, reject) => {
+            try {
+                const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+                const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+                resolve(decryptedData);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    // Function to display decrypted data
+    function displayDecryptedData(data) {
+        document.getElementById("receivedData").innerText = data;
+    }
+
+    // New function to read data from the port
+    async function readDataFromPort() {
+        try {
+            if (port && port.readable) {
+                const reader = port.readable.getReader();
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        console.log("Data reading complete");
+                        reader.releaseLock();
+                        break;
+                    }
+                    handleReceivedData(new TextDecoder().decode(value));
+                }
+            } else {
+                console.error("Port is not initialized or not readable");
+            }
+        } catch (error) {
+            console.error("Error reading data:", error);
+        }
+    }
+
+    // New function to disconnect
+    async function disconnect() {
+        if (port && port.readable) {
+            await port.close();
+            document.getElementById("status").innerText = "Disconnected";
+        }
+    }
+
+</script>
+
+
+</body>
+</html>

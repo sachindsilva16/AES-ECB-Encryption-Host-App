@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AES Encryption & Decryption with ECB Technique</title>
     <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!--import crypto-js library-->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,14 +33,18 @@
             <h1 class="text-2xl font-bold text-center my-2 font-heading  select-none text-white drop-shadow-lg">
                 AES Encryption & Decryption
             </h1>
-            
+
             <!-- NAV BAR SECTION  -->
 
             <nav>
-               <ul class="flex space-x-10">
-                <li class="transform hover:scale-110 duration-300"><a href="#home" class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">Home</a></li>
-                <li class="transform hover:scale-110 duration-300"><a href="#about" class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">About</a></li>
-               </ul>
+                <ul class="flex space-x-10">
+                    <li class="transform hover:scale-110 duration-300"><a href="#home"
+                            class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">Home</a>
+                    </li>
+                    <li class="transform hover:scale-110 duration-300"><a href="#about"
+                            class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">About</a>
+                    </li>
+                </ul>
             </nav>
         </div>
     </header>
@@ -46,87 +52,63 @@
     <!-- MAIN BODY CONTAINER  -->
     <div class="container mx-auto py-10 ">
 
-        <!-- <div class="mx-auto my-auto mb-6 py-[2px] mx-10 bg-blue-500 text-white rounded-xl shadow-md shadow-blue-200"> -->
-
-        <!-- MAIN HEADING  -->
-        <!-- <h1 class="text-3xl font-bold text-center my-2 font-heading  select-none">AES Encryption & Decryption</h1> -->
-
-
-        <!-- </div> -->
-
-
-        <!-- BORDER FOR MAIN HEADING  -->
-        <!-- <div class="mx-4 md:mx-auto my-auto mb-6 py-[2px] mx-10 text-black rounded-xl shadow-md shadow-blue-200">
-
-            MAIN HEADING 
-            <h1 class="text-3xl font-bold text-center my-2 font-heading  select-none text-blue-500 drop-shadow-lg">AES
-                <span class="text-blue-500">Encryption & Decryption</span>
-            </h1>
-
-
-        </div> -->
 
         <!-- MAIN SECTION : 1 -->
-        <div class="mx-4 md:mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="mx-4 md:mx-64 grid grid-cols-1 md:grid-cols-1 gap-4">
+
 
             <!-- ENCRYPTION SECTION  -->
             <div class="flex flex-col p-6 bg-white rounded-lg shadow-md">
+                <form class="flex flex-col items-center" id="serialForm">
+                    <h1 class="mb-2 text-gray-500 font-body font-semibold select-none">Connect to STM32 COM3 Port</h1>
+                    <!-- <textarea class="w-full h-10 border border-gray-300 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none" name="inputData" id="inputData" placeholder="Enter the data here..."></textarea> -->
 
-                <!-- SIDE HEADING  -->
-                <h2 class="text-center md:text-start text-xl font-semibold mb-3 font-body select-none text-gray-500">AES
-                    Encryption with ECB
-                    Technique</h2>
-
-                <!--INPUT TEXT INPUT FOR ENCRYPTING...  -->
-                <textarea name="inputTextForEncryption" id="plainTextArea"
-                    class="w-full h-32 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
-                    placeholder="Enter text to encrypt..."></textarea>
+                    <button
+                        class="mt-4 bg-blue-500 text-white py-2 px-9 rounded-md font-body shadow-lg shadow-blue-400 hover:scale-105 duration-500 transform select-none"
+                        type="button" onclick="connect()">Connect</button>
 
 
-                <!-- INPUT TEXT FOR SECRET KEY  -->
+                    <div class="font-body font-semibold mt-4 text-center" id="connection">Connection status : <span
+                            id="status" class="text-red-500">Disconnected!</span></div>
 
-                <input type="text" name="secretKey" id="secretKeyOne"
+                    <!-- SIDE HEADING  -->
+                    <h2
+                        class="text-center md:text-start text-xl font-semibold mb-3 mt-10 font-body select-none text-gray-500 text-center">
+                        AES
+                        Encryption & Decryption with ECB
+                        Technique</h2>
+
+                    <!--INPUT TEXT INPUT FOR ENCRYPTING...  -->
+                    <textarea name="inputData" id="inputData"
+                        class="w-full h-10 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
+                        placeholder="Enter data to encrypt..." disabled></textarea>
+
+
+                    <!-- INPUT TEXT FOR SECRET KEY  -->
+
+                    <!-- <input type="text" name="secretKey" id="secretKeyOne"
                     class="text-gray-500 h-10 border border-gray-300 rounded-md p-2 pl-4 mb-4 font-body placeholder-gray-500 placeholder-opacity-50 focus:outline-none"
-                    placeholder="Enter your secret key...">
+                    placeholder="Enter your secret key..."> -->
 
-                <!-- BUTTON FOR ENCRYPTION -->
-                <button id="encryptButton"
-                    class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none">Encrypt</button>
+                    <!-- BUTTON FOR ENCRYPTION -->
+                    <button id="encryptButton"
+                        class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none"
+                        onclick="sendData()" disabled>Send
+                        data</button>
+                </form>
             </div>
 
-            <!-- DECRYPTION SECTION  -->
-            <div class="flex flex-col p-6 bg-white rounded-lg shadow-md">
 
-                <!-- SIDE HEADING  -->
-                <h2 class="text-center md:text-start text-xl font-semibold mb-3 font-body select-none text-gray-500">AES
-                    Decryption with ECB
-                    Technique</h2>
-
-                <!-- INPUT TEXT FIELD FOR DECRYPTING...  -->
-                <textarea name="inputTextForDecryption" id="cipherTextArea"
-                    class="w-full h-32 border border-gray-300 rounded-md p-2  pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
-                    placeholder="Enter encrypted text..."></textarea>
-
-                <!-- INPUT TEXT FOR SECRET KEY  -->
-
-                <input type="text" name="secretKey" id="secretKeyTwo"
-                    class="w-full h-10 border border-gray-300 rounded-md p-2 pl-4 mb-4 font-body placeholder-gray-500 placeholder-opacity-50 focus:outline-none"
-                    placeholder="Enter your secret key...">
-
-
-                <!-- BUTTON FOR DECRYPTION  -->
-                <button id="decryptButton"
-                    class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:scale-105 duration-500 transform select-none">Decrypt</button>
-            </div>
         </div>
 
         <!-- RESULT SECTION  -->
 
         <div class="mx-4 md:mx-auto mt-10">
-            <h2 class="text-center md:text-start ml-1 text-xl font-semibold mb-3 font-body text-gray-500">Final Output <span class="hidden md:inline-block">:</span>
+            <h2 class="text-center md:text-start ml-1 text-xl font-semibold mb-3 font-body text-gray-500">Final Output
+                <span class="hidden md:inline-block">:</span>
             </h2>
 
-            <textarea name="resultField" id="outputTextArea"
+            <textarea name="resultField" id="receivedData"
                 class="w-full h-32 border border-gray-300 rounded-md p-4 font-body resize-none focus:outline-none shadow-md shadow-gray-300 cursor-no-drop"
                 placeholder="Result will appear here..." readonly></textarea>
         </div>
@@ -135,13 +117,13 @@
 
 
     <!-- FOOTER SECTION  -->
-    <footer>
+    <!-- <footer>
 
         <div
             class="relative bottom-0 top-0 flex flex-col justify-center items-center md:justify-start md:flex-row space-y-1 md:space-y-0 md:space-x-10 md:px-20 w-full h-auto mt-20 p-10 bg-blue-500 font-medium font-footer text-gray-400 text-opacity-70 select-none grid grid-cols-1 md:grid-cols-3">
 
 
-            <!-- COPYRIGHTS  -->
+          
 
             <div
                 class="flex justify-center items-center md:justify-start border-1 px-4 md:px-1 py-5 text-sm transform text-white hover:text-black duration-500">
@@ -149,7 +131,7 @@
             </div>
 
 
-            <!-- CREDITS  -->
+     
 
             <div
                 class="flex items-center justify-center px-10 py-5 border-gray-900 md:px-8 letter-spacing text-sm transform text-white hover:text-black duration-500">
@@ -157,25 +139,25 @@
             </div>
 
 
-            <!-- SOCIAL MEDIA  -->
+        
 
             <div class="flex items-center justify-center px-10 py-5 md:px-8 letter-spacing space-x-3">
 
 
-                <!-- SOCIAL MEDIA : GITHUB  -->
+              
                 <a href="https://github.com/sachindsilva16" class="hover:scale-100 hover:grayscale duration-200">
                     <i class="fa-brands fa-github fa-beat-fade fa-xl " aria-hidden="true"
                         style="color: rgb(255,255,255);"></i>
                 </a>
 
-                <!-- SOCIAL MEDIA : LINKEDIN -->
+              
                 <a href="https://www.linkedin.com/" class="hover:scale-100 hover:grayscale duration-200">
                     <i class="fa-brands fa-linkedin fa-beat-fade fa-xl" aria-hidden="true"
                         style="color: rgb(255,255,255);"></i>
                 </a>
 
 
-                <!-- SOCIAL MEDIA : WE CHAT  -->
+             
                 <a href="https://www.wechat.com/" class="hover:scale-100 hover:grayscale duration-200">
                     <i class="fa-brands fa-weixin fa-beat-fade fa-xl fa-fw " aria-hidden="true"
                         style="color: rgb(255,255,255);"></i>
@@ -192,16 +174,453 @@
             </div>
         </div>
 
-    </footer>
-
-
+    </footer> -->
 
 
     <!-- >>>> SCRIPTING... -->
 
-    <script src="./script.js"></script>
-
     <script>
+        let port;
+        let receivedData = "";
+
+        async function sendData() {
+
+            const inputData = document.getElementById("inputData").value;
+
+            const key = CryptoJS.enc.Utf8.parse("testgoodtestgood");
+
+            const encryptedData = CryptoJS.AES.encrypt(inputData, key, { mode: CryptoJS.mode.ECB }).toString();
+
+
+
+
+            try {
+
+                if (port && port.writable) {
+                    const writer = port.writable.getWriter();
+                    const formattedData = formatData(inputData);
+
+                    const dataArray = new TextEncoder().encode(formattedData);
+
+                    await writer.write(dataArray);
+
+                    console.log("Data Sent :", formattedData);
+                    writer.releaseLock();
+                } else {
+                    console.error("Port is not initialized or not writable.");
+                }
+            } catch (error) {
+                console.error("Error in sending data.", error);
+            }
+
+        }
+
+        function formatData(data) {
+            return data.trim();
+        }
+
+
+        async function connect() {
+
+            try {
+
+                port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
+                console.log("Port :", port);
+
+                await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+                console.log("Port opened :", port.getInfo());
+                document.getElementById("status").innerText = "Connected.";
+                document.getElementById("status").classList.add("text-green-500");
+                document.getElementById("status").classList.remove("text-red-500");
+                document.getElementById("inputData").removeAttribute("disabled");
+                // document.querySelector('button[type="button"][onclick="sendData()"]').removeAttribute("disabled");
+
+
+                // Start reading the data from the port after connecting..
+
+                readDataFromPort();
+
+            } catch (error) {
+                console.error("Error in connecting port :", error);
+                document.getElementById("status").innerText = "Disconnected!";
+                document.getElementById("status").classList.add("text-red-500");
+                document.getElementById("status").classList.remove("text-green-500");
+
+            }
+        }
+
+        // function encryptData() {
+        //     const inputData = document.getElementById("inputData").value;
+        //     const key = CryptoJS.enc.Utf8.parse('YourSecretKey123'); // Replace with your secret key
+        //     const encryptedData = CryptoJS.AES.encrypt(inputData, key, { mode: CryptoJS.mode.ECB }).toString();
+        //     document.getElementById("encryptedData").value = encryptedData;
+        // }
+
+
+        // function handleReceivedData(data) {
+        //     // // Split the received data into lines.
+
+        //     // var lines = data.split('\n');
+
+        //     // // Assuming the first line contains the decrypted message and the second line contains the success message
+
+
+        //     // var decryptedMessage = lines[0];
+
+        //     // var successMessage = lines[1];
+
+        //     // var receivedData = document.getElementById("receivedData");
+
+        //     // receivedData.value = decryptedMessage;
+
+
+        //     const key = CryptoJS.env.Utf8.parse("testgoodtestgood");
+
+        //     const decryptedData = CryptoJS.AES.decrypt(data, key, { mode: CryptoJS.mode.ECB }).toString();
+
+        //     document.getElementById("receivedData").value = decryptedData;
+        // }
+
+
+        function handleReceivedData(data) {
+            if (data) {
+                try {
+                    const key = CryptoJS.enc.Utf8.parse('testgoodtestgood'); // Replace with your secret key
+                    const decryptedData = CryptoJS.AES.decrypt(data, key, { mode: CryptoJS.mode.ECB });
+                    const hexData = decryptedData.toString(CryptoJS.enc.Hex);
+                    document.getElementById("receivedData").value = hexData;
+                } catch (error) {
+                    console.warn("Received data is not properly formatted as UTF-8.");
+                    // Handle the case when received data is not properly formatted
+                    document.getElementById("receivedData").value = "Received data is not properly formatted as UTF-8.";
+                }
+            } else {
+                console.warn("Received empty data from the port.");
+                // Handle the case when received data is empty
+                document.getElementById("receivedData").value = "Received empty data from the port.";
+            }
+        }
+
+
+
+
+
+
+        // async function readDataFromPort() {
+        //     try {
+
+        //         if (port && port.readable) {
+        //             const reader = port.readable.getReader();
+
+        //             while (true) {
+        //                 const { value, done } = await reader.read();
+        //                 if (done) {
+        //                     console.log("Data reading is complete...");
+        //                     reader.releaseLock();
+        //                     break;
+        //                 }
+
+        //                 handleReceivedData(new TextDecoder().decode(value));
+        //             }
+        //         } else {
+        //             console.error("Port is not initialized or not readable..!");
+        //         }
+        //     } catch (error) {
+        //         console.error("Error in reading the data.");
+        //     }
+        // }
+
+        async function readDataFromPort() {
+            try {
+                if (port && port.readable) {
+                    const reader = port.readable.getReader();
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) {
+                            console.log("Data reading is complete...");
+                            reader.releaseLock();
+                            break;
+                        }
+                        if (value) {
+                            handleReceivedData(new TextDecoder().decode(value));
+                        } else {
+                            console.warn("Received empty data from the port.");
+                        }
+                    }
+                } else {
+                    console.error("Port is not initialized or not readable.");
+                }
+            } catch (error) {
+                console.error("Error in reading the data:", error);
+            }
+        }
+
+
+        async function disconnect() {
+            if (port && port.readable) {
+                await port.close();
+
+                document.getElementById("status").innerText = "Disconnected!";
+                document.getElementById("status").classList.add("text-red-500");
+                document.getElementById("status").classList.remove("text-green-500");
+                document.querySelector('button[type="button"][onclick="sendData()"]').setAttribute("disabled", true);
+            }
+        }
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- 
+    <script src="./script.js"></script> -->
+
+    <!-- <script>
+
+        let port;
+        let receivedData = "";
+
+
+
+
+        // CONNECT TO THE PORT 
+
+        async function connect() {
+            try {
+                port = await navigator.serial.requestPort({
+                    filters: [{
+                        usbVendorId: 0x0483
+                    }]
+                });
+
+                console.log("Port = ", port);
+
+                await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+
+                console.log("Port opened :", port.getInfo());
+
+                document.getElementById("connectionStatus").innerText = "Connected Successfully";
+                document.getElementById("connectionStatus").classList.add("text-green-500");
+                document.getElementById("connectionStatus").classList.remove("text-red-500");
+
+
+                port.addEventListener("read", ({ data }) => {
+                    const decoder = new TextDecoderStream();
+
+                    const readableStreamClosed = data.pipeTo(decoder.writable);
+
+                    const reader = decoder.readable.getReader();
+
+
+
+                    reader.read().then(function processText({ value, done }) {
+                        if (done) {
+                            console.log("Received data : ", receivedData);
+
+                            document.getElementById("receivedData").innerText = receivedData;
+
+                            compareData(inputData, receivedData);
+
+                            receivedData = "";
+                            // Here, clear the received data for next comparisions
+
+                            return;
+                        }
+                        receivedData += value;
+                        return reader.read().then(processText);
+                    });
+                });
+
+            } catch (error) {
+
+                console.log("Connection Error!!! :", error);
+                document.getElementById("connectionStatus").innertText = "Disconnected";
+            }
+        }
+
+
+
+
+
+        // TO COMPARE THE DATA BETWEEN SEND AND RECEIVE
+
+        function compareData(originalData, receivedData) {
+            if (originalData.trim() === receivedData.trim()) {
+                alert("Task is executed successfully...");
+            } else {
+                alert("Task Failed : No match between original and received data");
+            }
+        }
+
+        // SEND THE ENCRYPTED DATA
+        async function sendEncryptedData(event) {
+
+            event.preventDefault();
+            const inputData = document.getElementById("plainTextArea").value;
+
+            const key = "testgoodtestgood";
+
+            const encryptedData = encryptData(inputData, key);
+
+            try {
+                if (port && port.writable) {
+                    const writer = port.writable.getWriter();
+                    const formattedData = formatData(inputData);
+                    const dataArray = new TextEncoder().encode(formattedData);
+
+
+                    await writer.write(dataArray);
+                    console.log("Encrypted data sent = ", formattedData);
+                    writer.releaseLock();
+
+                } else {
+                    console.error("Port is not initialized or not writable!");
+                }
+            } catch (error) {
+                console.error("Error sending encrypted data :", error);
+            }
+        }
+
+
+        // ENCRYPT THE DATA
+
+        function encryptData(data, key) {
+            return CryptoJS.AES.encrypt(data, key).toString();
+        }
+
+
+        // DECRYPT THE DATA 
+
+        async function decryptData(encryptedData, key) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+                    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+                    resolve(decryptedData);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+
+        //  TRIM THE DATA
+        function formatData(data) {
+            return data.trim();
+        }
+
+
+
+
+        async function sendDataToBoard(data) {
+            try {
+                if (port && port.writable) {
+                    const writer = port.writable.getWriter();
+                    const formattedData = formatData(data);
+                    const dataArray = new TextEncoder().encode(formattedData);
+                    await writer.write(dataArray);
+                    console.log("Data sent : ", formattedData);
+                    writer.releaseLock();
+                } else {
+                    console.error("Port is not initialized or not writable");
+                }
+            } catch (error) {
+                console.error("Error in sending data :", error);
+            }
+        }
+
+
+        // function decryptData(encryptedData, key) {
+        //     const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+        //     return bytes.toString(CryptoJS.enc.Utf8);
+        // }
+
+
+        // Display the Decrypted Data
+
+        function displayDecryptedData(data) {
+            document.getElementById("receivedData").value = data;
+        }
+
+
+
+        // Handle the received data
+
+        async function handleReceivedData(data) {
+            const key = "testgoodtestgood";
+            const decryptedData = await decryptData(data, key);
+            displayDecryptedData(decryptedData);
+
+        }
+
+
+
+
+
+        // FUNCTION : To read the data from the port
+
+        async function readDataFromPort() {
+
+            try {
+                if (port && port.readable) {
+                    const reader = port.readable.getReader();
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) {
+                            console.log("Data reading is complete..");
+                            reader.releaseLock();
+                            break;
+                        }
+                        handleReceivedData(new TextDecoder().decode(value));
+                    }
+                } else {
+                    console.error("Port is not initialized or not readable");
+                }
+            } catch (error) {
+                console.error("Error in reading the data : ", error);
+            }
+        }
+
+
+        // FUNCTION : Disconnect 
+
+        async function disconnect() {
+            if (port && port.readable) {
+                await port.close();
+                document.getElementById("connectionStatus").innerText = "Disconnected!";
+                document.getElementById("connectionStatus").classList.add("text-red-500");
+                document.getElementById("connectionStatus").classList.remove("text-green-500");
+            }
+        }
+
+
+
+
+    </script> -->
+
+
+
+
+
+
+
+
+
+    <!-- <script>
 
         function encryptThePlainText() {
             var inputText = document.getElementById("inputText").value;
@@ -228,7 +647,7 @@
             //     .then(response => response.json())
             //     .then(data => document.getElementById("outputText").value = data.decryptedText);
         }
-    </script>
+    </script> -->
 </body>
 
 

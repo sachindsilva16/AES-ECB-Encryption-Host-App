@@ -1,118 +1,114 @@
-// VALIDATE INPUT FIELDS OF ENCRYPTION SECTION
+let port;
+let receivedData = "";
 
-function validateEncryptionInputs() {
+async function sendData() {
 
-    var plainTextArea = document.getElementById("plainTextArea");
-    var secretKeyOne = document.getElementById("secretKeyOne");
-    var isValid = true;
+    const inputData = document.getElementById("inputData").ariaValueMax;
 
 
-    // CHECK IF PLAINTEXT AREA IS EMPTY OR NOT
+    try {
 
-    if (plainTextArea.value.trim() === "") {
-        plainTextArea.style.borderColor = "red";
-        isValid = false;
-    } else {
-        plainTextArea.style.borderColor = "";
-        // RESET THE BORDER COLOR
+        if (port && port.writable) {
+            const writer = port.writable.getWriter();
+            const formattedData = formatData(inputData);
+
+            const dataArray = new TextEncoder().encode(formattedData);
+
+            await writer.write(dataArray);
+
+            console.log("Data Sent :", formattedData);
+            writer.releaseLock();
+        } else {
+            console.error("Port is not initialized or not writable.");
+        }
+    } catch (error) {
+        console.error("Error in sending data.", error);
     }
-
-
-
-
-    // CHECK IF THE SECRET KEY INPUT IS EMPTY OR NOT
-
-    if (secretKeyOne.value.trim() === "") {
-        secretKeyOne.style.borderColor = "red";
-        isValid = false;
-    } else {
-        secretKeyOne.style.borderColor = "";
-    }
-
-    return isValid;
-}
-
-
-// VALIDATE THE INPUT FIELDS OF DECRYPTION FIELDS
-
-
-function validateDecryptionInputs() {
-
-    var cipherTextArea = document.getElementById("cipherTextArea");
-    var secretKeyTwo = document.getElementById("secretKeyTwo");
-
-    var isValid = true;
-
-
-    // CHECK IF CIPHER TEXT AREA IS EMPTY OR NOT
-
-    if (cipherTextArea.value.trim() === "") {
-        cipherTextArea.style.borderColor = "red";
-        isValid = false;
-    } else {
-        cipherTextArea.style.borderColor = "";
-    }
-
-
-    // CHECK IF THE SECRET KEY INPUT IS EMPTY OR NOT 
-
-    if (secretKeyTwo.value.trim() === "") {
-        secretKeyTwo.style.borderColor = "red";
-        isValid = false;
-    } else {
-        secretKeyTwo.style.borderColor = "";
-    }
-
-    return isValid;
 
 }
 
+function formatData(data) {
+    return data.trim();
+}
 
-// EVENT LISTENER FOR ENCRYPT BUTTON CLICK...
 
-document.getElementById("encryptButton").addEventListener("click",function(){
+async function connect() {
 
-    if(validateEncryptionInputs()){
+    try {
 
-        alert("ENCRYPTION SUCCCESS!!");
+        port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
+        console.log("Port :", port);
+
+        await port.open({ baudDate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+        console.log("Port opened :",port.getInfo());
+        document.getElementById("status").innerText = "Connected.";
+        document.getElementById("status").classList.add("text-green-500");
+        document.getElementById("status").classList.remove("text-red-500");
+        
+
+        // Start reading the data from the port after connecting..
+        
+        readDataFromPort();
+
+    } catch (error){
+        console.error("Error in connecting port :",error);
+        document.getElementById("status").innerText = "Disconnected!";
+        document.getElementById("status").classList.add("text-red-500");
+        document.getElementById("status").classList.remove("text-green-500");
+
+    } 
+}
+
+
+function handleReceivedData(data){
+    // Split the received data into lines.
+
+    var lines = data.split('\n');
+
+    // Assuming the first line contains the decrypted message and the second line contains the success message
+
+
+    var decryptedMessage = lines[0];
+
+    var successMessage = lines[1];
+
+    var receivedData = document.getElementById("receivedData");
+
+    receivedData.value = decryptedMessage;
+}
+
+async function readDataFromPort(){
+    try {
+
+        if(port && port.readable){
+            const reader = port.readable.getReader();
+
+            while(true){
+                const {value,done} = await reader.read();
+                if(done){
+                    console.log("Data reading is complete...");
+                    reader.releaseLock();
+                    break;
+                }
+
+                handleReceivedData(new TextDecoder().decode(value));
+            }
+        } else {
+            console.error("Port is not initialized or not readable..!");
+        }
+    } catch (error){
+        console.error("Error in reading the data.");
     }
-});
+}
 
 
-document.getElementById("decryptButton").addEventListener("click",function(){
-    if(validateDecryptionInputs()){
-        alert("DECRYPTION SUCCCESS!!");
+async function disconnect(){
+    if(port && port.readable){
+        await port.close();
 
+        document.getElementById("status").innerText = "Disconnected!";
+        document.getElementById("status").classList.add("text-red-500");
+        document.getElementById("status").classList.remove("text-green-500");
     }
-});
+}
 
-
-
-
-
-
-
-// document.getElementById("encryptButton").addEventListener("click",function(){
-//     if(validateEncryptionInputs()){
-//         encryptThePlainText();
-//     };
-// });
-
-
-
-// function validateEncryptionInputs(){
-
-//     var plainText = document.getElementById("plainTextArea").value;
-//     var secretKeyOne = document.getElementById("secretKeyOne").value;
-
-//     if(plainText.trim() === "" || secretKeyOne.trim() === ""){
-
-
-//         document.getElementById("plainTextArea").style.borderColor = "red";
-//         document.getElementById("plainTextArea").style.color="red";
-
-//         alert("Please enter the plaintext and your secret key!!");
-//         return false;
-//     }
-//     return true;
-// }

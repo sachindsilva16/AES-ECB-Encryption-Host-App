@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STM32 Serial Communication Tool</title>
+<link rel="stylesheet" href="lisa-styles.css">
+</head>
+<body>
+<div class="container">
+    <h2>STM32 Serial Communication Tool</h2>
+    <form id="serialForm">
+        <label for="inputData">Enter data to send:</label>
+        <textarea id="inputData" name="inputData" rows="4"></textarea>
+        <button type="button" onclick="connect()">Connect</button>
+        <button type="button" onclick="sendData()">Send Data</button>
+    </form>
+    <div id="connectionStatus">Connection Status: <span id="status">Disconnected</span></div>
+    <hr>
+    <div id="receivedData"></div>
+</div>
+
+<script>
+    let port;
+    let receivedData = "";
+
+    async function sendData() {
+        const inputData = document.getElementById("inputData").value;
+        try {
+            if (port && port.writable) {
+                const writer = port.writable.getWriter();
+                const formattedData = formatData(inputData);
+                const dataArray = new TextEncoder().encode(formattedData);
+                await writer.write(dataArray);
+                console.log("Data sent:", formattedData);
+                writer.releaseLock();
+            } else {
+                console.error("Port is not initialized or not writable");
+            }
+        } catch (error) {
+            console.error("Error sending data:", error);
+        }
+    }
+
+    function formatData(data) {
+        return data.trim();
+    }
+
+    async function connect() {
+        try {
+            port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
+            console.log("Port:", port);
+            await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+            console.log("Port opened:", port.getInfo());
+            document.getElementById("status").innerText = "Connected";
+            port.addEventListener("read", ({ data }) => {
+                const decoder = new TextDecoderStream();
+                const readableStreamClosed = data.pipeTo(decoder.writable);
+                const reader = decoder.readable.getReader();
+
+                reader.read().then(function processText({ value, done }) {
+                    if (done) {
+                        console.log("Received data:", receivedData);
+                        document.getElementById("receivedData").innerText = receivedData;
+                        compareData(inputData, receivedData);
+                        receivedData = ""; // Clear receivedData for next comparison
+                        return;
+                    }
+
+                    receivedData += value;
+                    return reader.read().then(processText);
+                });
+            });
+        } catch (error) {
+            console.error("Error connecting to port:", error);
+            document.getElementById("status").innerText = "Disconnected";
+        }
+    }
+
+    function compareData(originalData, receivedData) {
+        if (originalData.trim() === receivedData.trim()) {
+            alert("Task Successful");
+        } else {
+            alert("Task Failed: Received data does not match original data");
+        }
+    }
+</script>
+
+</body>
+</html>

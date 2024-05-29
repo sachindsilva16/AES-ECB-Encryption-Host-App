@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script> <!--import crypto-js library-->
+<title>STM32 Serial Communication Tool</title>
+<style>
+    /* Add your CSS styles here */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        margin: 20px auto;
+        width: 80%;
+        max-width: 800px;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        margin-top: 0;
+        color: #007bff;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    #connectionStatus {
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    #status {
+        color: red;
+    }
+
+    #statussuccess {
+        color: green;
+    }
+    #receivedData {
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 3px;
+        background-color: #f9f9f9;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>STM32 Serial Communication Tool</h2>
+    <button type="button" onclick="connect()">Connect to Port</button>
+    <div id="connectionStatus">Connection Status: <span id="status">Disconnected</span></div>
+    <hr>
+    <form id="serialForm">
+        <label for="inputData">Enter data to send:</label>
+        <textarea id="inputData" name="inputData" rows="4" placeholder="Type your message here..."></textarea>
+        
+        <button type="button" onclick="sendData()" disabled>Send Data</button>
+        <button type="button" onclick="disconnect()" disabled>Disconnect</button>
+    </form>
+    <hr>
+    <div>
+        <label for="receivedData">Received Data:</label>
+        <div id="receivedData"></div>
+    </div>
+</div>
+
+<script>
+    let port;
+    let receivedData = "";
+
+    async function sendData() {
+        const inputData = document.getElementById("inputData").value;
+        try {
+            if (port && port.writable) {
+                const writer = port.writable.getWriter();
+                const formattedData = formatData(inputData);
+                const dataArray = new TextEncoder().encode(formattedData);
+                await writer.write(dataArray);
+                console.log("Data sent:", formattedData);
+                writer.releaseLock();
+            } else {
+                console.error("Port is not initialized or not writable");
+            }
+        } catch (error) {
+            console.error("Error sending data:", error);
+        }
+    }
+
+    function formatData(data) {
+        return data.trim();
+    }
+
+    async function connect() {
+    try {
+        port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
+        console.log("Port:", port);
+        await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+        console.log("Port opened:", port.getInfo());
+        document.getElementById("status").innerText = "Connected";
+        document.getElementById("status").style.color = "green";
+        document.getElementById("inputData").removeAttribute("disabled");
+        document.querySelector('button[type="button"][onclick="sendData()"]').removeAttribute("disabled");
+        document.querySelector('button[type="button"][onclick="disconnect()"]').removeAttribute("disabled");
+
+        // Start reading data after connecting
+        readDataFromPort();
+
+    } catch (error) {
+        console.error("Error connecting to port:", error);
+        document.getElementById("status").innerText = "Disconnected";
+        document.getElementById("status").style.color = "red"; 
+    }
+}
+
+
+    /*async function sendDataToBoard(data) {
+        try {
+            if (port && port.writable) {
+                const writer = port.writable.getWriter();
+                const formattedData = formatData(data);
+                const dataArray = new TextEncoder().encode(formattedData);
+                await writer.write(dataArray);
+                console.log("Data sent:", formattedData);
+                writer.releaseLock();
+            } else {
+                console.error("Port is not initialized or not writable");
+            }
+        } catch (error) {
+            console.error("Error sending data:", error);
+        }
+    }*/
+
+
+    // Function to handle received decrypted data and display it in the interface
+function handleReceivedData(data) {
+    // Split the received data into lines
+    var lines = data.split('\n');
+    
+    // Assuming the first line contains the decrypted message and the second line contains the success message
+    var decryptedMessage = lines[0];
+    var successMessage = lines[1];
+
+    // Get the div where decrypted data will be displayed
+    var receivedDataDiv = document.getElementById("receivedData");
+    
+    // Update the content of the div with the received decrypted data and success message
+    receivedDataDiv.innerHTML = "<p>" + decryptedMessage + "</p><p>" + successMessage + "</p>";
+}
+
+
+    async function readDataFromPort() {
+        try {
+            if (port && port.readable) {
+                const reader = port.readable.getReader();
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        console.log("Data reading complete");
+                        reader.releaseLock();
+                        break;
+                    }
+                    handleReceivedData(new TextDecoder().decode(value));
+                }
+            } else {
+                console.error("Port is not initialized or not readable");
+            }
+        } catch (error) {
+            console.error("Error reading data:", error);
+        }
+    }
+
+    async function disconnect() {
+        if (port && port.readable) {
+            await port.close();
+            document.getElementById("status").innerText = "Disconnected";
+            document.getElementById("inputData").setAttribute("disabled", true);
+            document.querySelector('button[type="button"][onclick="sendData()"]').setAttribute("disabled", true);
+            document.querySelector('button[type="button"][onclick="disconnect()"]').setAttribute("disabled", true);
+            document.getElementById("status").style.color = "red";
+        }
+    }
+</script>
+
+</body>
+</html>
