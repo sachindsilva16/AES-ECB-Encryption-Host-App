@@ -95,6 +95,12 @@
                         class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none"
                         onclick="sendData()" disabled>Send
                         data</button>
+                    <button
+                        class="mt-8 bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none"
+                        id="sendToSerialPort" onclick="sendDataToSerialPort()" disabled>Send Data to Serial
+                        Port</button>
+
+
                 </form>
             </div>
 
@@ -183,37 +189,37 @@
         let port;
         let receivedData = "";
 
-        async function sendData() {
+        // async function sendData() {
 
-            const inputData = document.getElementById("inputData").value;
+        //     const inputData = document.getElementById("inputData").value;
 
-            const key = CryptoJS.enc.Utf8.parse("testgoodtestgood");
+        //     const key = CryptoJS.enc.Utf8.parse("testgoodtestgood");
 
-            const encryptedData = CryptoJS.AES.encrypt(inputData, key, { mode: CryptoJS.mode.ECB }).toString();
+        //     // const encryptedData = CryptoJS.AES.encrypt(inputData, key, { mode: CryptoJS.mode.ECB }).toString();
+
+        //     try {
+
+        //         if (port && port.writable) {
+        //             const writer = port.writable.getWriter();
+        //             const formattedData = formatData(inputData);
+
+        //             const dataArray = new TextEncoder().encode(formattedData);
+
+        //             await writer.write(dataArray);
+
+        //             console.log("Data Sent :", formattedData);
+        //             writer.releaseLock();
+        //         } else {
+        //             console.error("Port is not initialized or not writable.");
+        //         }
+        //     } catch (error) {
+        //         console.error("Error in sending data.", error);
+        //     }
+
+        // }
 
 
 
-
-            try {
-
-                if (port && port.writable) {
-                    const writer = port.writable.getWriter();
-                    const formattedData = formatData(inputData);
-
-                    const dataArray = new TextEncoder().encode(formattedData);
-
-                    await writer.write(dataArray);
-
-                    console.log("Data Sent :", formattedData);
-                    writer.releaseLock();
-                } else {
-                    console.error("Port is not initialized or not writable.");
-                }
-            } catch (error) {
-                console.error("Error in sending data.", error);
-            }
-
-        }
 
         function formatData(data) {
             return data.trim();
@@ -233,6 +239,7 @@
                 document.getElementById("status").classList.add("text-green-500");
                 document.getElementById("status").classList.remove("text-red-500");
                 document.getElementById("inputData").removeAttribute("disabled");
+                document.getElementById("sendToSerialPort").removeAttribute("disabled");
                 // document.querySelector('button[type="button"][onclick="sendData()"]').removeAttribute("disabled");
 
 
@@ -249,86 +256,15 @@
             }
         }
 
-        // function encryptData() {
-        //     const inputData = document.getElementById("inputData").value;
-        //     const key = CryptoJS.enc.Utf8.parse('YourSecretKey123'); // Replace with your secret key
-        //     const encryptedData = CryptoJS.AES.encrypt(inputData, key, { mode: CryptoJS.mode.ECB }).toString();
-        //     document.getElementById("encryptedData").value = encryptedData;
-        // }
-
-
-        // function handleReceivedData(data) {
-        //     // // Split the received data into lines.
-
-        //     // var lines = data.split('\n');
-
-        //     // // Assuming the first line contains the decrypted message and the second line contains the success message
-
-
-        //     // var decryptedMessage = lines[0];
-
-        //     // var successMessage = lines[1];
-
-        //     // var receivedData = document.getElementById("receivedData");
-
-        //     // receivedData.value = decryptedMessage;
-
-
-        //     const key = CryptoJS.env.Utf8.parse("testgoodtestgood");
-
-        //     const decryptedData = CryptoJS.AES.decrypt(data, key, { mode: CryptoJS.mode.ECB }).toString();
-
-        //     document.getElementById("receivedData").value = decryptedData;
-        // }
 
 
         function handleReceivedData(data) {
-            if (data) {
-                try {
-                    const key = CryptoJS.enc.Utf8.parse('testgoodtestgood'); // Replace with your secret key
-                    const decryptedData = CryptoJS.AES.decrypt(data, key, { mode: CryptoJS.mode.ECB });
-                    const hexData = decryptedData.toString(CryptoJS.enc.Hex);
-                    document.getElementById("receivedData").value = hexData;
-                } catch (error) {
-                    console.warn("Received data is not properly formatted as UTF-8.");
-                    // Handle the case when received data is not properly formatted
-                    document.getElementById("receivedData").value = "Received data is not properly formatted as UTF-8.";
-                }
-            } else {
-                console.warn("Received empty data from the port.");
-                // Handle the case when received data is empty
-                document.getElementById("receivedData").value = "Received empty data from the port.";
-            }
+            var receivedData = document.getElementById("receivedData");
+
+            // Append the new data to the existing content
+            receivedData.value += data;
         }
 
-
-
-
-
-
-        // async function readDataFromPort() {
-        //     try {
-
-        //         if (port && port.readable) {
-        //             const reader = port.readable.getReader();
-
-        //             while (true) {
-        //                 const { value, done } = await reader.read();
-        //                 if (done) {
-        //                     console.log("Data reading is complete...");
-        //                     reader.releaseLock();
-        //                     break;
-        //                 }
-
-        //                 handleReceivedData(new TextDecoder().decode(value));
-        //             }
-        //         } else {
-        //             console.error("Port is not initialized or not readable..!");
-        //         }
-        //     } catch (error) {
-        //         console.error("Error in reading the data.");
-        //     }
-        // }
 
         async function readDataFromPort() {
             try {
@@ -367,7 +303,26 @@
             }
         }
 
+        async function sendDataToSerialPort() {
+            const inputData = document.getElementById("inputData").value;
 
+            try {
+                // Use the Web Serial API to access the serial port
+                port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
+                await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+
+                // Wait for Bus Hound to start monitoring the "OUT" phase
+                await waitForBusHound();
+
+                // Convert the input data to bytes and send it over the serial port
+                const dataArray = new TextEncoder().encode(inputData);
+                await port.write(dataArray);
+
+                console.log("Data sent to serial port:", inputData);
+            } catch (error) {
+                console.error("Error sending data to serial port:", error);
+            }
+        }
     </script>
 
 
@@ -383,271 +338,6 @@
 
 
 
-
-
-
-    <!-- 
-    <script src="./script.js"></script> -->
-
-    <!-- <script>
-
-        let port;
-        let receivedData = "";
-
-
-
-
-        // CONNECT TO THE PORT 
-
-        async function connect() {
-            try {
-                port = await navigator.serial.requestPort({
-                    filters: [{
-                        usbVendorId: 0x0483
-                    }]
-                });
-
-                console.log("Port = ", port);
-
-                await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
-
-                console.log("Port opened :", port.getInfo());
-
-                document.getElementById("connectionStatus").innerText = "Connected Successfully";
-                document.getElementById("connectionStatus").classList.add("text-green-500");
-                document.getElementById("connectionStatus").classList.remove("text-red-500");
-
-
-                port.addEventListener("read", ({ data }) => {
-                    const decoder = new TextDecoderStream();
-
-                    const readableStreamClosed = data.pipeTo(decoder.writable);
-
-                    const reader = decoder.readable.getReader();
-
-
-
-                    reader.read().then(function processText({ value, done }) {
-                        if (done) {
-                            console.log("Received data : ", receivedData);
-
-                            document.getElementById("receivedData").innerText = receivedData;
-
-                            compareData(inputData, receivedData);
-
-                            receivedData = "";
-                            // Here, clear the received data for next comparisions
-
-                            return;
-                        }
-                        receivedData += value;
-                        return reader.read().then(processText);
-                    });
-                });
-
-            } catch (error) {
-
-                console.log("Connection Error!!! :", error);
-                document.getElementById("connectionStatus").innertText = "Disconnected";
-            }
-        }
-
-
-
-
-
-        // TO COMPARE THE DATA BETWEEN SEND AND RECEIVE
-
-        function compareData(originalData, receivedData) {
-            if (originalData.trim() === receivedData.trim()) {
-                alert("Task is executed successfully...");
-            } else {
-                alert("Task Failed : No match between original and received data");
-            }
-        }
-
-        // SEND THE ENCRYPTED DATA
-        async function sendEncryptedData(event) {
-
-            event.preventDefault();
-            const inputData = document.getElementById("plainTextArea").value;
-
-            const key = "testgoodtestgood";
-
-            const encryptedData = encryptData(inputData, key);
-
-            try {
-                if (port && port.writable) {
-                    const writer = port.writable.getWriter();
-                    const formattedData = formatData(inputData);
-                    const dataArray = new TextEncoder().encode(formattedData);
-
-
-                    await writer.write(dataArray);
-                    console.log("Encrypted data sent = ", formattedData);
-                    writer.releaseLock();
-
-                } else {
-                    console.error("Port is not initialized or not writable!");
-                }
-            } catch (error) {
-                console.error("Error sending encrypted data :", error);
-            }
-        }
-
-
-        // ENCRYPT THE DATA
-
-        function encryptData(data, key) {
-            return CryptoJS.AES.encrypt(data, key).toString();
-        }
-
-
-        // DECRYPT THE DATA 
-
-        async function decryptData(encryptedData, key) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const bytes = CryptoJS.AES.decrypt(encryptedData, key);
-                    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-                    resolve(decryptedData);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-
-
-        //  TRIM THE DATA
-        function formatData(data) {
-            return data.trim();
-        }
-
-
-
-
-        async function sendDataToBoard(data) {
-            try {
-                if (port && port.writable) {
-                    const writer = port.writable.getWriter();
-                    const formattedData = formatData(data);
-                    const dataArray = new TextEncoder().encode(formattedData);
-                    await writer.write(dataArray);
-                    console.log("Data sent : ", formattedData);
-                    writer.releaseLock();
-                } else {
-                    console.error("Port is not initialized or not writable");
-                }
-            } catch (error) {
-                console.error("Error in sending data :", error);
-            }
-        }
-
-
-        // function decryptData(encryptedData, key) {
-        //     const bytes = CryptoJS.AES.decrypt(encryptedData, key);
-        //     return bytes.toString(CryptoJS.enc.Utf8);
-        // }
-
-
-        // Display the Decrypted Data
-
-        function displayDecryptedData(data) {
-            document.getElementById("receivedData").value = data;
-        }
-
-
-
-        // Handle the received data
-
-        async function handleReceivedData(data) {
-            const key = "testgoodtestgood";
-            const decryptedData = await decryptData(data, key);
-            displayDecryptedData(decryptedData);
-
-        }
-
-
-
-
-
-        // FUNCTION : To read the data from the port
-
-        async function readDataFromPort() {
-
-            try {
-                if (port && port.readable) {
-                    const reader = port.readable.getReader();
-                    while (true) {
-                        const { value, done } = await reader.read();
-                        if (done) {
-                            console.log("Data reading is complete..");
-                            reader.releaseLock();
-                            break;
-                        }
-                        handleReceivedData(new TextDecoder().decode(value));
-                    }
-                } else {
-                    console.error("Port is not initialized or not readable");
-                }
-            } catch (error) {
-                console.error("Error in reading the data : ", error);
-            }
-        }
-
-
-        // FUNCTION : Disconnect 
-
-        async function disconnect() {
-            if (port && port.readable) {
-                await port.close();
-                document.getElementById("connectionStatus").innerText = "Disconnected!";
-                document.getElementById("connectionStatus").classList.add("text-red-500");
-                document.getElementById("connectionStatus").classList.remove("text-green-500");
-            }
-        }
-
-
-
-
-    </script> -->
-
-
-
-
-
-
-
-
-
-    <!-- <script>
-
-        function encryptThePlainText() {
-            var inputText = document.getElementById("inputText").value;
-
-            // Call the Flask API endpoint for encryption
-
-            // fetch('/encrypt',{method:'POST',body:JSON.stringify({text : inputText})})
-
-            // .then(response=>{
-            //     response.json()
-            // })
-
-            // .then(data=> document.getElementById("outputText").value = data.encryptThePlaintext);
-
-        }
-
-
-        function decryptTheCipherText() {
-
-            var encryptedText = document.getElementById("encryptedText").value;
-
-            // Call Flask API endpoint for decryption
-            // Example: fetch('/decrypt', { method: 'POST', body: JSON.stringify({ encryptedText: encryptedText }) })
-            //     .then(response => response.json())
-            //     .then(data => document.getElementById("outputText").value = data.decryptedText);
-        }
-    </script> -->
 </body>
 
 
