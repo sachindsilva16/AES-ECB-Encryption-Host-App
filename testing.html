@@ -1,90 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STM32 Serial Communication Tool</title>
-<link rel="stylesheet" href="lisa-styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing window</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="./Encrypt.png" type="image/x-icon">
+    <script src="https://kit.fontawesome.com/4c3e7725e1.js" crossorigin="anonymous"></script>
 </head>
-<body>
-<div class="container">
-    <h2>STM32 Serial Communication Tool</h2>
-    <form id="serialForm">
-        <label for="inputData">Enter data to send:</label>
-        <textarea id="inputData" name="inputData" rows="4"></textarea>
-        <button type="button" onclick="connect()">Connect</button>
-        <button type="button" onclick="sendData()">Send Data</button>
-    </form>
-    <div id="connectionStatus">Connection Status: <span id="status">Disconnected</span></div>
-    <hr>
-    <div id="receivedData"></div>
-</div>
 
-<script>
-    let port;
-    let receivedData = "";
+<body class="bg-gray-100">
 
-    async function sendData() {
-        const inputData = document.getElementById("inputData").value;
-        try {
-            if (port && port.writable) {
-                const writer = port.writable.getWriter();
-                const formattedData = formatData(inputData);
-                const dataArray = new TextEncoder().encode(formattedData);
-                await writer.write(dataArray);
-                console.log("Data sent:", formattedData);
-                writer.releaseLock();
-            } else {
-                console.error("Port is not initialized or not writable");
+    <header class="bg-blue-500 py-4 shadow-xl rounded-xl m-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-center my-2 font-heading  select-none text-white drop-shadow-lg">
+                AES Encryption & Decryption
+            </h1>
+            <nav>
+                <ul class="flex space-x-10">
+                    <li class="transform hover:scale-110 duration-300"><a href="#home"
+                            class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">Home</a>
+                    </li>
+                    <li class="transform hover:scale-110 duration-300"><a href="#about"
+                            class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">About</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container mx-auto py-10 ">
+        <div class="mx-4 md:mx-64 grid grid-cols-1 md:grid-cols-1 gap-4">
+            <div class="flex flex-col p-6 bg-white rounded-lg shadow-md">
+                <form class="flex flex-col items-center" id="serialForm">
+                    <h1 class="mb-2 text-gray-500 font-body font-semibold select-none">Connect to STM32 COM3 Port</h1>
+                    <button
+                        class="mt-4 bg-blue-500 text-white py-2 px-9 rounded-md font-body shadow-lg shadow-blue-400 hover:scale-105 duration-500 transform select-none"
+                        type="button" onclick="connect()">Connect</button>
+                    <div class="font-body font-semibold mt-4 text-center" id="connection">Connection status : <span
+                            id="status" class="text-red-500">Disconnected!</span></div>
+                    <h2
+                        class="text-center md:text-start text-xl font-semibold mb-3 mt-10 font-body select-none text-gray-500 text-center">
+                        AES Encryption & Decryption with ECB Technique</h2>
+                    <textarea name="inputData" id="inputData"
+                        class="w-full h-10 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
+                        placeholder="Enter data to encrypt..." disabled></textarea>
+                    <button id="sendToSerialPort"
+                        class="mt-8 bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none"
+                        onclick="sendDataToSerialPort()" disabled>Send Data to Bus Hound</button>
+                </form>
+            </div>
+        </div>
+        <div class="mx-4 md:mx-auto mt-10">
+            <h2 class="text-center md:text-start ml-1 text-xl font-semibold mb-3 font-body text-gray-500">Final Output
+                <span class="hidden md:inline-block">:</span>
+            </h2>
+            <textarea name="resultField" id="receivedData"
+                class="w-full h-32 border border-gray-300 rounded-md p-4 font-body resize-none focus:outline-none shadow-md shadow-gray-300 cursor-no-drop"
+                placeholder="Result will appear here..." readonly></textarea>
+        </div>
+    </div>
+
+    <footer>
+        <div
+            class="relative bottom-0 top-0 flex flex-col justify-center items-center md:justify-start md:flex-row space-y-1 md:space-y-0 md:space-x-10 md:px-20 w-full h-auto mt-20 p-10 bg-blue-500 font-medium font-footer text-gray-400 text-opacity-70 select-none grid grid-cols-1 md:grid-cols-3">
+            <div
+                class="flex justify-center items-center md:justify-start border-1 px-4 md:px-1 py-5 text-sm transform text-white hover:text-black duration-500">
+                <p>&copy; Nidec Instruments Corporation. All rights are reserved.</p>
+            </div>
+            <div class="flex items-center justify-center px-10 py-5 border-gray-900 md:px-8 letter-spacing text-sm transform text-white hover:text-black duration-500">
+                <p>Developed with ❤ by サチン</p>
+            </div>
+            <div class="flex items-center justify-center px-10 py-5 md:px-8 letter-spacing space-x-3">
+                <a href="https://github.com/sachindsilva16" class="hover:scale-100 hover:grayscale duration-200">
+                    <i class="fa-brands fa-github fa-beat-fade fa-xl " aria-hidden="true"
+                        style="color: rgb(255,255,255);"></i>
+                </a>
+                <a href="https://www.linkedin.com/" class="hover:scale-100 hover:grayscale duration-200">
+                    <i class="fa-brands fa-linkedin fa-beat-fade fa-xl" aria-hidden="true"
+                        style="color: rgb(255,255,255);"></i>
+                </a>
+                <a href="https://www.wechat.com/" class="hover:scale-100 hover:grayscale duration-200">
+                    <i class="fa-brands fa-weixin fa-beat-fade fa-xl fa-fw " aria-hidden="true"
+                        style="color: rgb(255,255,255);"></i>
+                </a>
+                <a href="https://telegram.com/" class="hover:scale-100 hover:grayscale duration-200 ">
+                    <i class="fa-brands fa-telegram fa-beat-fade fa-xl " aria-hidden="true"
+                        style="color: rgb(255,255,255);"></i> </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let port;
+
+        async function connect() {
+            try {
+                port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
+                await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
+                console.log("Port opened:", port.getInfo());
+                document.getElementById("status").innerText = "Connected.";
+                document.getElementById("status").classList.add("text-green-500");
+                document.getElementById("status").classList.remove("text-red-500");
+                document.getElementById("inputData").removeAttribute("disabled");
+                document.getElementById("sendToSerialPort").removeAttribute("disabled");
+            } catch (error) {
+                console.error("Error in connecting port:", error);
+                document.getElementById("status").innerText = "Disconnected!";
+                document.getElementById("status").classList.add("text-red-500");
+                document.getElementById("status").classList.remove("text-green-500");
             }
-        } catch (error) {
-            console.error("Error sending data:", error);
         }
-    }
 
-    function formatData(data) {
-        return data.trim();
-    }
-
-    async function connect() {
-        try {
-            port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
-            console.log("Port:", port);
-            await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
-            console.log("Port opened:", port.getInfo());
-            document.getElementById("status").innerText = "Connected";
-            port.addEventListener("read", ({ data }) => {
-                const decoder = new TextDecoderStream();
-                const readableStreamClosed = data.pipeTo(decoder.writable);
-                const reader = decoder.readable.getReader();
-
-                reader.read().then(function processText({ value, done }) {
-                    if (done) {
-                        console.log("Received data:", receivedData);
-                        document.getElementById("receivedData").innerText = receivedData;
-                        compareData(inputData, receivedData);
-                        receivedData = ""; // Clear receivedData for next comparison
-                        return;
-                    }
-
-                    receivedData += value;
-                    return reader.read().then(processText);
-                });
-            });
-        } catch (error) {
-            console.error("Error connecting to port:", error);
-            document.getElementById("status").innerText = "Disconnected";
+        async function sendDataToSerialPort() {
+            const inputData = document.getElementById("inputData").value;
+            try {
+                if (port && port.writable) {
+                    const writer = port.writable.getWriter();
+                    const dataArray = new TextEncoder().encode(inputData);
+                    await writer.write(dataArray);
+                    await writer.releaseLock();
+                    console.log("Data sent to serial port:", inputData);
+                } else {
+                    console.error("Port is not initialized or not writable.");
+                }
+            } catch (error) {
+                console.error("Error sending data to serial port:", error);
+            }
         }
-    }
-
-    function compareData(originalData, receivedData) {
-        if (originalData.trim() === receivedData.trim()) {
-            alert("Task Successful");
-        } else {
-            alert("Task Failed: Received data does not match original data");
-        }
-    }
-</script>
-
+    </script>
 </body>
+
 </html>

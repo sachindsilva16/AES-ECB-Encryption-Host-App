@@ -93,12 +93,12 @@
                     <!-- BUTTON FOR ENCRYPTION -->
                     <button id="encryptButton"
                         class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none"
-                        onclick="sendData()" disabled>Send
+                        onclick="sendData(event)" disabled>Send
                         data</button>
-                    <button
+                    <!-- <button
                         class="mt-8 bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none"
                         id="sendToSerialPort" onclick="sendDataToSerialPort()" disabled>Send Data to Serial
-                        Port</button>
+                        Port</button> -->
 
 
                 </form>
@@ -123,13 +123,13 @@
 
 
     <!-- FOOTER SECTION  -->
-    <!-- <footer>
+    <footer>
 
         <div
             class="relative bottom-0 top-0 flex flex-col justify-center items-center md:justify-start md:flex-row space-y-1 md:space-y-0 md:space-x-10 md:px-20 w-full h-auto mt-20 p-10 bg-blue-500 font-medium font-footer text-gray-400 text-opacity-70 select-none grid grid-cols-1 md:grid-cols-3">
 
 
-          
+
 
             <div
                 class="flex justify-center items-center md:justify-start border-1 px-4 md:px-1 py-5 text-sm transform text-white hover:text-black duration-500">
@@ -137,7 +137,7 @@
             </div>
 
 
-     
+
 
             <div
                 class="flex items-center justify-center px-10 py-5 border-gray-900 md:px-8 letter-spacing text-sm transform text-white hover:text-black duration-500">
@@ -145,25 +145,25 @@
             </div>
 
 
-        
+
 
             <div class="flex items-center justify-center px-10 py-5 md:px-8 letter-spacing space-x-3">
 
 
-              
+
                 <a href="https://github.com/sachindsilva16" class="hover:scale-100 hover:grayscale duration-200">
                     <i class="fa-brands fa-github fa-beat-fade fa-xl " aria-hidden="true"
                         style="color: rgb(255,255,255);"></i>
                 </a>
 
-              
+
                 <a href="https://www.linkedin.com/" class="hover:scale-100 hover:grayscale duration-200">
                     <i class="fa-brands fa-linkedin fa-beat-fade fa-xl" aria-hidden="true"
                         style="color: rgb(255,255,255);"></i>
                 </a>
 
 
-             
+
                 <a href="https://www.wechat.com/" class="hover:scale-100 hover:grayscale duration-200">
                     <i class="fa-brands fa-weixin fa-beat-fade fa-xl fa-fw " aria-hidden="true"
                         style="color: rgb(255,255,255);"></i>
@@ -180,7 +180,7 @@
             </div>
         </div>
 
-    </footer> -->
+    </footer>
 
 
     <!-- >>>> SCRIPTING... -->
@@ -188,38 +188,6 @@
     <script>
         let port;
         let receivedData = "";
-
-        // async function sendData() {
-
-        //     const inputData = document.getElementById("inputData").value;
-
-        //     const key = CryptoJS.enc.Utf8.parse("testgoodtestgood");
-
-        //     // const encryptedData = CryptoJS.AES.encrypt(inputData, key, { mode: CryptoJS.mode.ECB }).toString();
-
-        //     try {
-
-        //         if (port && port.writable) {
-        //             const writer = port.writable.getWriter();
-        //             const formattedData = formatData(inputData);
-
-        //             const dataArray = new TextEncoder().encode(formattedData);
-
-        //             await writer.write(dataArray);
-
-        //             console.log("Data Sent :", formattedData);
-        //             writer.releaseLock();
-        //         } else {
-        //             console.error("Port is not initialized or not writable.");
-        //         }
-        //     } catch (error) {
-        //         console.error("Error in sending data.", error);
-        //     }
-
-        // }
-
-
-
 
         function formatData(data) {
             return data.trim();
@@ -239,13 +207,9 @@
                 document.getElementById("status").classList.add("text-green-500");
                 document.getElementById("status").classList.remove("text-red-500");
                 document.getElementById("inputData").removeAttribute("disabled");
-                document.getElementById("sendToSerialPort").removeAttribute("disabled");
+                document.getElementById("encryptButton").removeAttribute("disabled");
                 // document.querySelector('button[type="button"][onclick="sendData()"]').removeAttribute("disabled");
 
-
-                // Start reading the data from the port after connecting..
-
-                readDataFromPort();
 
             } catch (error) {
                 console.error("Error in connecting port :", error);
@@ -257,17 +221,21 @@
         }
 
 
+        function handleReceivedData(data, userInputData) {
 
-        function handleReceivedData(data) {
             var receivedData = document.getElementById("receivedData");
 
-            // Append the new data to the existing content
             receivedData.value += data;
+
+
         }
 
 
-        async function readDataFromPort() {
+
+
+        async function readDataFromPort(userInputData) {
             try {
+
                 if (port && port.readable) {
                     const reader = port.readable.getReader();
                     while (true) {
@@ -278,18 +246,52 @@
                             break;
                         }
                         if (value) {
-                            handleReceivedData(new TextDecoder().decode(value));
+                            handleReceivedData(new TextDecoder().decode(value), userInputData);
                         } else {
                             console.warn("Received empty data from the port.");
                         }
+
                     }
+
+
                 } else {
                     console.error("Port is not initialized or not readable.");
                 }
+
             } catch (error) {
-                console.error("Error in reading the data:", error);
+
+                console.error("Error in reading the data :", error);
+
             }
         }
+
+
+
+        async function sendData(event) {
+
+            event.preventDefault();
+            try {
+                const userInputData = document.getElementById("inputData").value;
+                const formattedData = formatData(userInputData);
+
+                if (port && port.writable) {
+                    const writer = port.writable.getWriter();
+                    const dataArray = new TextEncoder().encode(formattedData);
+                    await writer.write(dataArray);
+                    console.log("Data sent : ", formattedData);
+                    writer.releaseLock();
+                } else {
+                    console.error("Port is not initialized or not writable");
+                }
+
+
+                readDataFromPort(userInputData);
+            } catch (error) {
+                console.error("Error in sending data :", error);
+            }
+        }
+
+
 
 
         async function disconnect() {
@@ -303,26 +305,7 @@
             }
         }
 
-        async function sendDataToSerialPort() {
-            const inputData = document.getElementById("inputData").value;
-
-            try {
-                // Use the Web Serial API to access the serial port
-                port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0483 }] });
-                await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
-
-                // Wait for Bus Hound to start monitoring the "OUT" phase
-                await waitForBusHound();
-
-                // Convert the input data to bytes and send it over the serial port
-                const dataArray = new TextEncoder().encode(inputData);
-                await port.write(dataArray);
-
-                console.log("Data sent to serial port:", inputData);
-            } catch (error) {
-                console.error("Error sending data to serial port:", error);
-            }
-        }
+  
     </script>
 
 
