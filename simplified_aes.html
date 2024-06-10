@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AES-ECB Encryption</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+        <script src="./simplified_script.js"></script>
+</head>
+<body>
+    <h1>AES-ECB Encryption Demo</h1>
+    <button type="button" id="connect_button" onclick="connect()"
+    class="text-black bg-green-400 px-6 py-3 mb-10 rounded-lg shadow-xl shadow-green-500 hover:text-green-400 hover:bg-white hover:scale-105 transform duration-300 hover:shadow-none hover:drop-shadow-xl">Connect</button>
+
+        <div class="mb-8 select-none" id="connectionStatus">Connection Status: <span
+        class="px-2 py-[2px] select-none rounded-lg"
+        id="status">Disconnected!</span></div>
+    <label for="inputText">Input Text:</label>
+    <input type="text" id="inputText">
+    <br><br>
+    <label for="key">Key:</label>
+    <input type="text" id="key">
+    <br><br>
+    <button id="encryptData" onclick="sendData(event)">Encrypt Data with Key1</button>
+    <br><br>
+    <!-- <button onclick="encryptData()">Encrypt Data with Key1</button>
+    <br><br>     -->
+    <label for="encryptedData">Encrypted Data:</label>
+    <textarea id="encryptedData" rows="4" cols="50" readonly></textarea>
+    <br><br>
+    <button id="clearEncryptedData" onclick="clearEncryptedData()">Clear Encrypted Data</button>
+    <!-- <label for="receivedData">Received Data:</label>
+        <textarea id="receivedData" rows="4" cols="50"></textarea>
+        <br><br> -->
+    <!-- <button onclick="encryptDataHex()">Encrypt Data in Hex format with Key1</button>
+    <br><br>
+    <button onclick="decryptData()">Decrypt Received Data</button>
+    <br><br>
+    <button onclick="decryptDataHex()">Decrypt Received Data in Hex format</button>
+    <br><br>
+    <label for="decryptedText">Decrypted Text:</label>
+    <textarea id="decryptedText" rows="4" cols="50" readonly></textarea>
+    <br><br>
+    <label for="authStatus">Authentication Status:</label>
+    <input type="text" id="authStatus" readonly> -->
+    
+    <script>
+        // Function to encrypt data using AES-ECB with Key1
+        //var key1 = 'testtesttesttest';
+        //function encryptData() {
+        //    var inputText = document.getElementById('inputText').value;
+        //    var key1 = 'testtesttesttest'; // Replace 'YourKey1' with your actual Key1
+        //    var key2 = 'YourKey2'; // Replace 'YourKey2' with your actual Key2
+        //    var encryptedData = CryptoJS.AES.encrypt(inputText, key1).toString();
+        //    console.log(encryptedData);
+        //    //var ciphertext = CryptoJS.AES.encrypt(encryptedData, key2).toString();
+        //    document.getElementById('encryptedData').value = encryptedData;
+        //}
+
+        function encryptDataHex() {
+            var inputText = document.getElementById('inputText').value;
+            var key1 = 'testtesttesttest'; // Replace 'YourKey1' with your actual Key1
+            var key2 = 'YourKey2'; // Replace 'YourKey2' with your actual Key2
+            var encryptedData= CryptoJS.enc.Hex.stringify(CryptoJS.enc.Utf8.parse(inputText));
+            var ciphertext = CryptoJS.AES.encrypt(encryptedData, key2).toString();
+            var encoder = new TextEncoder();
+            var messageBytes = encoder.encode(encryptedData);
+
+            // Convert the Uint8Array to Hex format
+            var hexString = Array.prototype.map.call(messageBytes, function(byte) {
+                return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+            }).join('');
+            
+            //console.log("Message in Hex format:", hexString);
+            document.getElementById('encryptedData').value = encryptedData;
+        }
+
+        // Function to decrypt received data using AES-ECB with Key2 and authenticate
+        function decryptData() {
+            var key1 = 'testtesttesttest'; // Replace 'YourKey1' with your actual Key1
+            var key2 = 'YourKey2'; // Replace 'YourKey2' with your actual Key2
+            //var ciphertext = CryptoJS.AES.encrypt(receivedData, key1).toString();
+            var receivedData = document.getElementById('encryptedData').value; 
+            var decryptedData = CryptoJS.AES.decrypt(receivedData, key1).toString(CryptoJS.enc.Utf8);
+            var inputText = document.getElementById('inputText').value;
+
+            // Check if decryption is successful and authenticate
+            if (inputText === decryptedData) {
+                document.getElementById('decryptedText').value = decryptedData;
+                document.getElementById('authStatus').value = "SUCCESS";
+            } else {
+                document.getElementById('decryptedText').value = "";
+                document.getElementById('authStatus').value = "FAIL";
+            }
+        }
+
+            function decryptDataHex() {
+                var key1 = 'testtesttesttest'; // Replace 'YourKey1' with your actual Key1
+                var key2 = 'YourKey2'; // Replace 'YourKey2' with your actual Key2
+                //var ciphertext = CryptoJS.AES.encrypt(receivedData, key1).toString();
+                var receivedData = document.getElementById('encryptedData').value; 
+                var decryptedData = CryptoJS.AES.decrypt(receivedData, key1).toString(CryptoJS.enc.Utf8);
+                var inputText = document.getElementById('inputText').value;
+    
+                // Check if decryption is successful and authenticate
+                if (inputText === decryptedData) {
+                    var decryptedData = CryptoJS.AES.decrypt(receivedData, key1).toString(CryptoJS.enc.Hex);
+                    console.log(decryptedData);
+                    document.getElementById('decryptedText').value = decryptedData;
+                    document.getElementById('authStatus').value = "SUCCESS";
+                } else {
+                    document.getElementById('decryptedText').value = "";
+                    document.getElementById('authStatus').value = "FAIL";
+                }
+        }
+    </script>
+</body>
+</html>

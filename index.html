@@ -28,7 +28,7 @@
 
     <!-- HEADER SECTION  -->
 
-    <header class="bg-blue-500 py-4 shadow-xl rounded-xl m-4">
+    <header id="headerSection" class="bg-red-500 py-4 px-8 shadow-xl rounded-xl m-4 transition duration-700">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold text-center my-2 font-heading  select-none text-white drop-shadow-lg">
                 AES Encryption & Decryption
@@ -50,7 +50,7 @@
     </header>
 
     <!-- MAIN BODY CONTAINER  -->
-    <div class="container mx-auto py-10 ">
+    <div class="container mx-auto py-10 pt-4 ">
 
 
         <!-- MAIN SECTION : 1 -->
@@ -64,12 +64,13 @@
                     <!-- <textarea class="w-full h-10 border border-gray-300 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none" name="inputData" id="inputData" placeholder="Enter the data here..."></textarea> -->
 
                     <button
-                        class="mt-4 bg-blue-500 text-white py-2 px-9 rounded-md font-body shadow-lg shadow-blue-400 hover:scale-105 duration-500 transform select-none"
-                        type="button" onclick="connect()">Connect</button>
+                        class="mt-4 bg-red-500 text-white py-2 px-9 rounded-md font-body shadow-lg shadow-red-400 hover:scale-105 hover:bg-white hover:text-black duration-700 transform select-none"
+                        type="button" id="connectButton" onclick="connect()">Connect</button>
 
 
-                    <div class="font-body font-semibold mt-4 text-center" id="connection">Connection status : <span
-                            id="status" class="text-red-500">Disconnected!</span></div>
+                    <div class=" font-body font-semibold mt-4 text-center select-none" id="connection">Connection status
+                        : <span id="status"
+                            class="bg-red-500 text-white px-[5px] rounded-lg shadow-lg">Disconnected!</span></div>
 
                     <!-- SIDE HEADING  -->
                     <h2
@@ -81,7 +82,11 @@
                     <!--INPUT TEXT INPUT FOR ENCRYPTING...  -->
                     <textarea name="inputData" id="inputData"
                         class="w-full h-10 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
-                        placeholder="Enter data to encrypt..." disabled></textarea>
+                        placeholder="Enter a 16 bit data to encrypt..." disabled></textarea>
+
+                    <textarea name="keyData" id="KeyOneData"
+                        class="w-full h-10 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
+                        placeholder="Enter a 16 bit key to encrypt..." disabled></textarea>
 
 
                     <!-- INPUT TEXT FOR SECRET KEY  -->
@@ -92,7 +97,7 @@
 
                     <!-- BUTTON FOR ENCRYPTION -->
                     <button id="encryptButton"
-                        class="bg-blue-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-blue-400 hover:shadow-xl hover:scale-105 duration-500 transform select-none"
+                        class="bg-gray-500 text-white py-2 px-7 rounded-md font-body shadow-lg shadow-gray-400 shadow-xl duration-700 transform select-none cursor-no-drop"
                         onclick="sendData(event)" disabled>Send
                         data</button>
                     <!-- <button
@@ -109,14 +114,115 @@
 
         <!-- RESULT SECTION  -->
 
-        <div class="mx-4 md:mx-auto mt-10">
-            <h2 class="text-center md:text-start ml-1 text-xl font-semibold mb-3 font-body text-gray-500">Final Output
+        <!-- <div class="mx-4 md:mx-auto mt-4">
+            <h2 class="text-center md:text-start ml-1 text-xl font-semibold mb-3 font-body text-gray-500">Encrypted
+                Output
                 <span class="hidden md:inline-block">:</span>
             </h2>
 
             <textarea name="resultField" id="receivedData"
                 class="w-full h-32 border border-gray-300 rounded-md p-4 font-body resize-none focus:outline-none shadow-md shadow-gray-300 cursor-no-drop"
                 placeholder="Result will appear here..." readonly></textarea>
+        </div> -->
+        <div class="font-body m-2 mt-5 md:mx-12 relative overflow-x-auto shadow-2xl rounded-lg ">
+            <table id="resultTable" class="hidden w-full text-sm text-left rtl:text-right text-gray-500">
+
+
+                <!-- TABLE HEADING  -->
+                <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                    <tr>
+                        <th scope="col" class="text-center border-x-1 border-r-2 border-gray-300 pl-6 pr-1 py-3">
+                            Contents
+                        </th>
+                        <th scope="col" class="text-center border-x-1 border-r-2 border-gray-300 px-24 py-3">
+                            Key Value
+                        </th>
+                        <th scope="col" class="text-center border-x-1 border-gray-300 px-36 py-3">
+                            Result
+                        </th>
+
+                    </tr>
+                </thead>
+
+
+
+                <!-- TABLE BODY -->
+                <tbody>
+                    <tr class="bg-white border-b ">
+
+
+                        <!-- ROW 1 : ENCRYPTED DATA SENT BY HOST APPLICATION TO THE STM32 BOARD -->
+                        <th scope="row"
+                            class="text-center border border-1 border-gray-300 text-gray-500 font-medium pl-6 pr-1 py-4 whitespace-nowrap ">
+                            Encrypted data sent by Host Application (HEX)
+                        </th>
+
+
+                        <!-- ROW 1 : PC KEY 1 VALUE -->
+                        <td id="PCkeyOneValue" class="text-center border border-1 border-gray-300 px-6 py-4 ">
+
+                        </td>
+
+                        <!-- ROW 1 : PC RESULT 1 VALUE (ENCRYPTED RESULT DATA) -->
+                        <td class="text-center border border-1 border-gray-300 px-6 py-4">
+                            <span class="rounded-xl text-white " id="PCResultOneValue"></span>
+                        </td>
+
+
+                    </tr>
+
+
+                    <!-- ROW 2 : ENCRYPTED DATA RECEIVED FROM THE STM32 BOARD AND DISPLAYED IT IN THE HOST APPLICATION-->
+                    <tr class="bg-white border-b ">
+                        <th scope="row"
+                            class="text-center bg-gray-100 text-gray-500 border border-1 border-gray-300 font-medium pl-6 pr-1  py-4 whitespace-nowrap ">
+                            Encrypted Data received from STM32 Board (HEX)
+                        </th>
+
+                        <!-- ROW 2 : BOARD KEY 2 VALUE -->
+                        <td id="BoardKeyTwoValue"
+                            class="text-center bg-gray-100 border border-1 border-gray-300 px-6 py-4">
+
+                        </td>
+
+
+                        <!-- ROW 2 : BOARD RESULT 2 VALUE (ENCRYPTED RESULT DATA)-->
+                        <td class="text-center bg-gray-100 border border-1 border-gray-300 px-6 py-4">
+                            <span class="rounded-xl text-white " id="BoardResultTwoValue"></span>
+                        </td>
+                    </tr>
+
+
+                    <!-- ROW 3 : DATA DECRYPTED BY HOST APPLICATION -->
+                    <tr class="bg-white">
+                        <th scope="row"
+                            class="text-center text-gray-500 font-medium pl-6 pr-1  py-4 whitespace-nowrap ">
+                            Data decrypted by Host Application
+                        </th>
+
+                        <!-- ROW 3 : PC KEY 2 VALUE -->
+                        <td id="PCKeyTwoValue" class="text-center border border-1 border-gray-300 px-6 py-4">
+
+                        </td>
+
+                        <!-- ROW 3 : PC RESULT TWO VALUE (DECRYPTED RESULT DATA) -->
+                        <td class="text-center border border-1 border-gray-300 px-6 py-4">
+                            <span class="rounded-xl text-white " id="PCResultTwoValue"></span>
+                        </td>
+                    </tr>
+                    <tr class="bg-white border-b ">
+                        <th scope="row"
+                            class="row-span-2 text-center bg-gray-100 text-gray-500 border border-1 border-gray-300 font-medium pl-6 pr-1  py-4 whitespace-nowrap ">
+                            AES Authentication Status
+                        </th>
+
+                        <td colspan="2" class="text-center bg-gray-100 border border-1 border-gray-300 px-6 py-4">
+                            <span class="rounded-xl text-white" id="resultStatus"></span>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -125,8 +231,8 @@
     <!-- FOOTER SECTION  -->
     <footer>
 
-        <div
-            class="relative bottom-0 top-0 flex flex-col justify-center items-center md:justify-start md:flex-row space-y-1 md:space-y-0 md:space-x-10 md:px-20 w-full h-auto mt-20 p-10 bg-blue-500 font-medium font-footer text-gray-400 text-opacity-70 select-none grid grid-cols-1 md:grid-cols-3">
+        <div id="footerSection"
+            class="bg-red-500 relative bottom-0 top-0 flex flex-col justify-center items-center md:justify-start md:flex-row space-y-1 md:space-y-0 md:space-x-10 md:px-20 w-full h-auto p-10 pb-20 font-medium font-footer text-gray-400 text-opacity-70 select-none grid grid-cols-1 md:grid-cols-3 transform duration-700">
 
 
 
@@ -187,7 +293,7 @@
 
     <script>
         let port;
-        let receivedData = "";
+        let receivedDataValue = "";
 
         function formatData(data) {
             return data.trim();
@@ -203,11 +309,39 @@
 
                 await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: "none" });
                 console.log("Port opened :", port.getInfo());
-                document.getElementById("status").innerText = "Connected.";
-                document.getElementById("status").classList.add("text-green-500");
-                document.getElementById("status").classList.remove("text-red-500");
+                document.getElementById("status").innerText = "Connected";
+
+                // HEADER
+                document.getElementById("headerSection").classList.add("bg-green-500");
+
                 document.getElementById("inputData").removeAttribute("disabled");
+                document.getElementById("KeyOneData").removeAttribute("disabled");
+
+
+                // CONNECT BUTTION
+                document.getElementById("connectButton").classList.add("bg-green-500");
+                document.getElementById("connectButton").classList.add("shadow-green-400");
+
+
+                // CONNECTION STATUS
+                document.getElementById("status").classList.add("bg-green-500");
+                document.getElementById("status").classList.remove("bg-red-500");
+
+
+                // SEND DATA BUTTON
+                document.getElementById("encryptButton").classList.add("bg-green-500");
+                document.getElementById("encryptButton").classList.add("hover:text-green-500");
+                document.getElementById("encryptButton").classList.add("hover:bg-white");
+                document.getElementById("encryptButton").classList.add("hover:scale-105");
+                document.getElementById("encryptButton").classList.add("text-white");
+                document.getElementById("encryptButton").classList.remove("bg-gray-500");
+                document.getElementById("encryptButton").classList.remove("cursor-no-drop");
                 document.getElementById("encryptButton").removeAttribute("disabled");
+                document.getElementById("encryptButton").classList.add("bg-white");
+
+
+                // FOOTER
+                document.getElementById("footerSection").classList.add("bg-green-500");
                 // document.querySelector('button[type="button"][onclick="sendData()"]').removeAttribute("disabled");
 
 
@@ -221,26 +355,108 @@
         }
 
 
-        function handleReceivedData(data, userInputData) {
 
+
+
+        let lastReceivedEncryptedMessage;
+
+        let receivedBuffer = "";
+
+
+        function handleReceivedData(data) {
             var receivedData = document.getElementById("receivedData");
 
-            receivedData.value += data;
+            receivedBuffer += data;
 
 
+            if (receivedBuffer.length == 32) {
+
+
+                console.log("Received encrypted data from the board : ", receivedBuffer);
+
+                const BoardToPCKey = "testtesttesttest";
+
+
+                // ROW 2 : KEY 2
+                document.getElementById("BoardKeyTwoValue").innerText = "KEY 2 = " + BoardToPCKey;
+
+
+
+                document.getElementById("BoardResultTwoValue").innerText = receivedBuffer;
+
+                // --------ROW 2 : RESULT STYLINGS -----------
+                document.getElementById("BoardResultTwoValue").classList.add("text-white");
+                document.getElementById("BoardResultTwoValue").classList.add("bg-green-600");
+                document.getElementById("BoardResultTwoValue").classList.add("shadow-lg");
+                document.getElementById("BoardResultTwoValue").classList.add("px-2");
+                document.getElementById("BoardResultTwoValue").classList.add("py-1");
+
+
+
+                // --------------------------------------------
+
+                const decryptedDataByPC = decryptDataECB(receivedBuffer, BoardToPCKey);
+
+
+
+
+                // ROW 3 : KEY 2
+                document.getElementById("PCKeyTwoValue").innerText = "KEY 2 = " + BoardToPCKey;
+
+                console.log("Decrypted data by PC from Board (Encrypted data)", decryptedDataByPC);
+
+
+                // ROW 3 : DECRYPTED RESULT BY HOST APPLICATION
+
+                document.getElementById("PCResultTwoValue").innerText = decryptedDataByPC;
+
+                // --------ROW 3 : DECRYPTED RESULT STYLINGS -----------
+                document.getElementById("PCResultTwoValue").classList.add("text-white");
+                document.getElementById("PCResultTwoValue").classList.add("bg-green-600");
+                document.getElementById("PCResultTwoValue").classList.add("shadow-lg");
+                document.getElementById("PCResultTwoValue").classList.add("px-2");
+                document.getElementById("PCResultTwoValue").classList.add("py-1");
+
+
+                // FINAL STATUS 
+
+                document.getElementById("resultStatus").innerText = "SUCCESS"
+                document.getElementById("resultStatus").classList.add("py-1");
+                document.getElementById("resultStatus").classList.add("px-2");
+                document.getElementById("resultStatus").classList.add("bg-green-600");
+                document.getElementById("resultStatus").classList.add("animate-pulse");
+
+
+            } else {
+
+
+                // ROW 2
+                document.getElementById("BoardResultTwoValue").innerText = "Failed";
+
+                // --------ROW 2 : RESULT STYLINGS -----------
+                document.getElementById("BoardResultTwoValue").classList.add("text-white");
+                document.getElementById("BoardResultTwoValue").classList.add("bg-green-600");
+                document.getElementById("BoardResultTwoValue").classList.add("shadow-lg");
+                document.getElementById("BoardResultTwoValue").classList.add("px-2");
+                document.getElementById("BoardResultTwoValue").classList.add("py-1");
+            }
         }
-
-
+        
 
 
         async function readDataFromPort(userInputData) {
             try {
 
+                console.log("entered");
+
                 if (port && port.readable) {
                     const reader = port.readable.getReader();
                     while (true) {
                         const { value, done } = await reader.read();
+                        
                         if (done) {
+
+                            
                             console.log("Data reading is complete...");
                             reader.releaseLock();
                             break;
@@ -248,22 +464,86 @@
                         if (value) {
                             handleReceivedData(new TextDecoder().decode(value), userInputData);
                         } else {
-                            console.warn("Received empty data from the port.");
+                            console.log("Received empty data from the port.");
                         }
 
                     }
 
 
                 } else {
-                    console.error("Port is not initialized or not readable.");
+                    console.log("Port is not initialized or not readable.");
                 }
 
             } catch (error) {
 
                 console.error("Error in reading the data :", error);
+                // ROW 2 
+
+                document.getElementById("BoardKeyTwoValue").innerText = "KEY 2 = INVALID!";
+
+
+                document.getElementById("BoardResultTwoValue").innerText = "INVALID!";
+
+                // --------ROW 2 : RESULT STYLINGS -----------
+                document.getElementById("BoardResultTwoValue").classList.add("text-white");
+                document.getElementById("BoardResultTwoValue").classList.add("bg-red-600");
+                document.getElementById("BoardResultTwoValue").classList.add("shadow-lg");
+                document.getElementById("BoardResultTwoValue").classList.add("px-2");
+                document.getElementById("BoardResultTwoValue").classList.add("py-1");
+
+                // --------------------------------------------
+
+                // ROW 3 
+
+
+                document.getElementById("PCKeyTwoValue").innerText = "KEY 2 = INVALID!";
+
+                document.getElementById("PCResultTwoValue").innerText = "INVALID!";
+
+                // --------ROW 3 : DECRYPTED RESULT STYLINGS -----------
+                document.getElementById("PCResultTwoValue").classList.add("text-white");
+                document.getElementById("PCResultTwoValue").classList.add("bg-red-600");
+                document.getElementById("PCResultTwoValue").classList.add("shadow-lg");
+                document.getElementById("PCResultTwoValue").classList.add("px-2");
+                document.getElementById("PCResultTwoValue").classList.add("py-1");
+
+                // FINAL STATUS 
+
+                document.getElementById("resultStatus").innerText = "FAILED!!"
+                document.getElementById("resultStatus").classList.add("py-1");
+                document.getElementById("resultStatus").classList.add("px-2");
+                document.getElementById("resultStatus").classList.add("bg-red-600");
+                document.getElementById("resultStatus").classList.add("animate-pulse");
 
             }
         }
+
+
+
+        function base64ToHex(base64) {
+            const row = atob(base64);
+
+            let result = "";
+
+            for (let i = 0; i < row.length; i++) {
+                const hex = row.charCodeAt(i).toString(16);
+                result += (hex.length === 2 ? hex : "0" + hex);
+            }
+            return result.toUpperCase();
+        }
+
+
+        function hexToBase64(hex) {
+            // Convert hex string to bytes
+            const bytes = hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
+
+            // Convert bytes to base64
+            const base64 = btoa(String.fromCharCode.apply(null, bytes));
+
+            return base64;
+        }
+
+
 
 
 
@@ -274,21 +554,170 @@
                 const userInputData = document.getElementById("inputData").value;
                 const formattedData = formatData(userInputData);
 
-                if (port && port.writable) {
-                    const writer = port.writable.getWriter();
-                    const dataArray = new TextEncoder().encode(formattedData);
-                    await writer.write(dataArray);
-                    console.log("Data sent : ", formattedData);
-                    writer.releaseLock();
+
+                const key = document.getElementById("KeyOneData").value;
+                // key = "testgoodtestgood"
+
+                const originalKey = "testgoodtestgood"
+
+                if (key == originalKey) {
+                    const encryptedData = encryptDataECB(formattedData, key);
+
+
+                    const base64ToHexData = base64ToHex(encryptedData);
+
+                    // document.getElementById("receivedData").value = base64ToHexData;
+
+
+
+
+                    if (port && port.writable) {
+                        const writer = port.writable.getWriter();
+                        const dataArray = new TextEncoder().encode(base64ToHexData);
+                        await writer.write(dataArray);
+                        console.log("Encrypted Data sent to the Board : ", base64ToHexData);
+
+
+
+                        // FIRSTLY, DISPLAY THE TABLE ( WHICH IS HIDDEN UNTIL "SEND DATA" BUTTON IS BEEN TRIGGERED)
+
+                        document.getElementById("resultTable").classList.remove("hidden");
+
+
+                        document.getElementById("PCkeyOneValue").innerText = "KEY 1 = " + key;
+                        document.getElementById("PCResultOneValue").innerText = base64ToHexData;
+
+
+                        // --------ROW 1 : RESULT STYLINGS -----------
+                        document.getElementById("PCResultOneValue").classList.add("text-white");
+                        document.getElementById("PCResultOneValue").classList.add("bg-green-600");
+                        document.getElementById("PCResultOneValue").classList.add("shadow-lg");
+                        document.getElementById("PCResultOneValue").classList.add("px-2");
+                        document.getElementById("PCResultOneValue").classList.add("py-1");
+
+
+
+                        // --------------------------------------------
+
+
+
+                        writer.releaseLock();
+                    } else {
+                        console.error("Port is not initialized or not writable");
+
+
+                    }
+                    readDataFromPort(base64ToHexData);
+
+                    console.log("read port")
+
                 } else {
-                    console.error("Port is not initialized or not writable");
+
+
+
+
+                    document.getElementById("resultTable").classList.remove("hidden");
+
+
+
+                    // ROW 1
+
+                    document.getElementById("PCkeyOneValue").innerText = "KEY 1 = INVALID!";
+
+                    document.getElementById("PCResultOneValue").innerText = "INVALID!";
+                    // --------ROW 1 : RESULT STYLINGS -----------
+                    document.getElementById("PCResultOneValue").classList.add("text-white");
+                    document.getElementById("PCResultOneValue").classList.add("bg-red-600");
+                    document.getElementById("PCResultOneValue").classList.add("shadow-lg");
+                    document.getElementById("PCResultOneValue").classList.add("px-2");
+                    document.getElementById("PCResultOneValue").classList.add("py-1");
+
+
+
+                    // --------------------------------------------
+
+
+                    // ROW 2 
+
+                    document.getElementById("BoardKeyTwoValue").innerText = "KEY 2 = INVALID!";
+
+
+                    document.getElementById("BoardResultTwoValue").innerText = "INVALID!";
+
+                    // --------ROW 2 : RESULT STYLINGS -----------
+                    document.getElementById("BoardResultTwoValue").classList.add("text-white");
+                    document.getElementById("BoardResultTwoValue").classList.add("bg-red-600");
+                    document.getElementById("BoardResultTwoValue").classList.add("shadow-lg");
+                    document.getElementById("BoardResultTwoValue").classList.add("px-2");
+                    document.getElementById("BoardResultTwoValue").classList.add("py-1");
+
+                    // --------------------------------------------
+
+                    // ROW 3 
+
+
+                    document.getElementById("PCKeyTwoValue").innerText = "KEY 2 = INVALID!";
+
+                    document.getElementById("PCResultTwoValue").innerText = "INVALID!";
+
+                    // --------ROW 3 : DECRYPTED RESULT STYLINGS -----------
+                    document.getElementById("PCResultTwoValue").classList.add("text-white");
+                    document.getElementById("PCResultTwoValue").classList.add("bg-red-600");
+                    document.getElementById("PCResultTwoValue").classList.add("shadow-lg");
+                    document.getElementById("PCResultTwoValue").classList.add("px-2");
+                    document.getElementById("PCResultTwoValue").classList.add("py-1");
+
+                    // FINAL STATUS 
+
+                    document.getElementById("resultStatus").innerText = "FAILED!!"
+                    document.getElementById("resultStatus").classList.add("py-1");
+                    document.getElementById("resultStatus").classList.add("px-2");
+                    document.getElementById("resultStatus").classList.add("bg-red-600");
+                    document.getElementById("resultStatus").classList.add("animate-pulse");
+
                 }
 
 
-                readDataFromPort(userInputData);
             } catch (error) {
+                document.getElementById("resultTable").classList.add("hidden");
                 console.error("Error in sending data :", error);
             }
+        }
+
+
+
+        function encryptDataECB(plainText, key) {
+            // Convert text and key to WordArrays (Neccessary for CryptoJS)
+
+            const textWordArray = CryptoJS.enc.Utf8.parse(plainText);
+            const keyWordArray = CryptoJS.enc.Utf8.parse(key);
+
+            const encrypted = CryptoJS.AES.encrypt(textWordArray, keyWordArray, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.NoPadding
+            });
+
+
+            return encrypted.toString();
+        }
+
+
+        function decryptDataECB(cipherText, key) {
+
+            // const cipherTextInBase64 = hexToBase64(cipherText);
+            const cipherTextInBase64 = hexToBase64(cipherText);
+
+            const keyWordArray = CryptoJS.enc.Utf8.parse(key);
+
+            const decrypted = CryptoJS.AES.decrypt(cipherTextInBase64, keyWordArray, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.NoPadding
+            });
+
+            const decryptedText = CryptoJS.enc.Utf8.stringify(decrypted);
+
+            return decryptedText;
+
         }
 
 
@@ -305,7 +734,7 @@
             }
         }
 
-  
+
     </script>
 
 

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+
+</head>
+
+<body>
+    <!-- HTML -->
+    <textarea id="plaintext" placeholder="Enter text to encrypt"></textarea>
+    <button onclick="encryptAndSend()">Encrypt and Send</button>
+
+
+    <script>
+
+        function encryptData(plaintext, key) {
+            // Encrypt the plaintext using AES
+            var ciphertext = CryptoJS.AES.encrypt(plaintext, key).toString();
+            return ciphertext;
+        }
+
+        // Function to send data over UART using Web Serial API
+        async function sendDataOverUART(data) {
+            try {
+                // Request access to the serial port
+                const port = await navigator.serial.requestPort();
+
+                // Open the serial port
+                await port.open({ baudRate: 9600 }); // Adjust baud rate as per your setup
+
+                // Convert data to ArrayBuffer
+                const encoder = new TextEncoder();
+                const dataArrayBuffer = encoder.encode(data);
+
+                // Write data to the serial port
+                const writer = port.writable.getWriter();
+                await writer.write(dataArrayBuffer);
+                await writer.close();
+
+                console.log("Data sent over UART:", data);
+            } catch (error) {
+                console.error("Error sending data over UART:", error);
+            }
+        }
+
+
+
+        // Function to encrypt data and send it over UART
+        function encryptAndSend() {
+            var plaintext = document.getElementById("plaintext").value;
+            var key = "testtesttesttest"; // Replace with your actual encryption key
+
+            // Perform AES encryption
+            var encryptedData = encryptData(plaintext, key);
+
+            // Send encrypted data over UART
+            sendDataOverUART(encryptedData);
+        }
+
+    </script>
+
+
+</body>
+
+</html>
