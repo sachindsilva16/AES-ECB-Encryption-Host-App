@@ -43,7 +43,7 @@ To contribute to this project, follow these steps:
 6. Create a pull request to merge your changes into the main repository.
 
 ## Credits
-- **Developer**: [Your Name](https://github.com/your-profile)
+- **Developer**: [サチン・ドゥシルバ](https://github.com/sachindsilva16)
 - **Icons**: Font Awesome (https://fontawesome.com/)
 - **Fonts**: Inter (https://fonts.google.com/specimen/Inter)
 
@@ -53,9 +53,10 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Preview of Host Application
 
-[](./Host%20App%20-%20Disconnected.png)
 
-[](./Host%20App%20-%20Connected.png)
+[](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20App%20-%20Disconnected.png)
+
+[](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20App%20-%20Connected.png)
 
 
-[](././Host%20application%20-%20Final%20output.png)
+[](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20application%20-%20Final%20output.png)
