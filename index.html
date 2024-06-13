@@ -36,7 +36,7 @@
 
             <!-- NAV BAR SECTION  -->
 
-            <nav>
+            <!-- <nav>
                 <ul class="flex space-x-10">
                     <li class="transform hover:scale-110 duration-300"><a href="#home"
                             class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">Home</a>
@@ -45,7 +45,7 @@
                             class="text-white font-heading font-semibold hover:text-gray-200 transform duration-300 select-none">About</a>
                     </li>
                 </ul>
-            </nav>
+            </nav> -->
         </div>
     </header>
 
@@ -79,15 +79,24 @@
                         Encryption & Decryption with ECB
                         Technique</h2>
 
-                    <!--INPUT TEXT INPUT FOR ENCRYPTING...  -->
-                    <textarea name="inputData" id="inputData"
-                        class="w-full h-10 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
-                        placeholder="Enter a 16 bit data to encrypt..." disabled></textarea>
-
-                    <textarea name="keyData" id="KeyOneData"
-                        class="w-full h-10 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
-                        placeholder="Enter a 16 bit key to encrypt..." disabled></textarea>
-
+                    <!--PLAIN TEXT INPUT FOR ENCRYPTING...  -->
+                    <input autocomplete="on" name="inputData" id="inputData"
+                    class="w-full h-10 border border-gray-300 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
+                    placeholder="Enter a 16 bit data to encrypt..." disabled>
+                    
+                    <!--SECRET KEY INPUT FOR ENCRYPTING...  -->
+                    <div class="relative w-full">
+                        <div class="flex items-center">
+                            <input type="password" autocomplete="on" name="keyData" id="KeyOneData"
+                        class="text-green-500 w-full h-10 border border-gray-300 text-gray-500 rounded-md p-2 pl-4 mb-3 font-body placeholder-gray-500 placeholder-opacity-50 resize-none focus:outline-none"
+                        placeholder="Enter a 16 bit key to encrypt..." disabled>
+                        <button type="button" id="togglePassword" class="focus:outline-none  -ml-8 mb-2">
+                            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20240227164304/visible.png"
+                                alt="" class="hover:text-green-600 transition hover:scale-110 duration-500 w-5 absolute right-4 bottom-5 ">
+                                
+                        </button>
+                        </div>
+                    </div>
 
                     <!-- INPUT TEXT FOR SECRET KEY  -->
 
@@ -124,8 +133,8 @@
                 class="w-full h-32 border border-gray-300 rounded-md p-4 font-body resize-none focus:outline-none shadow-md shadow-gray-300 cursor-no-drop"
                 placeholder="Result will appear here..." readonly></textarea>
         </div> -->
-        <div class="font-body m-2 mt-5 md:mx-12 relative overflow-x-auto shadow-2xl rounded-lg ">
-            <table id="resultTable" class="hidden w-full text-sm text-left rtl:text-right text-gray-500">
+        <div id="results" class="hidden-table font-body m-2 mt-5 md:mx-12 relative overflow-x-auto shadow-2xl rounded-lg ">
+            <table id="resultTable" class=" w-full text-sm text-left rtl:text-right text-gray-500">
 
 
                 <!-- TABLE HEADING  -->
@@ -290,6 +299,9 @@
 
 
     <!-- >>>> SCRIPTING... -->
+
+
+    <script src="./app.js"></script>
 
     <script>
         let port;
@@ -723,16 +735,6 @@
 
 
 
-        async function disconnect() {
-            if (port && port.readable) {
-                await port.close();
-
-                document.getElementById("status").innerText = "Disconnected!";
-                document.getElementById("status").classList.add("text-red-500");
-                document.getElementById("status").classList.remove("text-green-500");
-                document.querySelector('button[type="button"][onclick="sendData()"]').setAttribute("disabled", true);
-            }
-        }
 
 
     </script>

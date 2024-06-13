@@ -21,3 +21,18 @@
     border-color: red !important;
     color: red !important;
 }
+
+.hidden-table {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 2s ease, transform 2s ease-out;
+    height: 0;
+    
+}
+
+/* Visible table style */
+.visible-table {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 1s ease, transform 1s ease;
+}

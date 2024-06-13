@@ -1,64 +1,147 @@
 <!DOCTYPE html>
-<html lang="en" class="font-body">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Testing </title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="./styles.css">
+    <title>GeeksforGeeks Form</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
 </head>
 
-<body>
+<style>
+    /* Hidden table style */
+    .hidden-table {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1s ease, transform 1s ease;
+    }
+    
+    /* Visible table style */
+    .visible-table {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 1s ease, transform 1s ease;
+    }
+</style>
 
-    <div class="m-2 mt-5 md:mx-12 relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class=" w-full text-sm text-left rtl:text-right text-gray-500 ">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+<body class="bg-gray-100 font-sans">
+
+    <button id="submitButton">Submit</button>
+
+    <div  class="font-body m-2 mt-5 md:mx-12 relative overflow-x-auto shadow-2xl rounded-lg ">
+        <table id="resultTable" class="hidden-table w-full text-sm text-left rtl:text-right text-gray-500">
+
+
+            <!-- TABLE HEADING  -->
+            <thead class="text-xs text-gray-700 uppercase bg-gray-200">
                 <tr>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="text-center border-x-1 border-r-2 border-gray-300 pl-6 pr-1 py-3">
                         Contents
                     </th>
-                    <th scope="col" class="px-2 py-3">
+                    <th scope="col" class="text-center border-x-1 border-r-2 border-gray-300 px-24 py-3">
                         Key Value
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="text-center border-x-1 border-gray-300 px-36 py-3">
                         Result
                     </th>
 
                 </tr>
             </thead>
+
+
+
+            <!-- TABLE BODY -->
             <tbody>
                 <tr class="bg-white border-b ">
-                    <th scope="row" class="text-gray-500 font-medium px-6 py-4 whitespace-nowrap ">
-                        Encrypted data sent by Host Application
+
+
+                    <!-- ROW 1 : ENCRYPTED DATA SENT BY HOST APPLICATION TO THE STM32 BOARD -->
+                    <th scope="row"
+                        class="text-center border border-1 border-gray-300 text-gray-500 font-medium pl-6 pr-1 py-4 whitespace-nowrap ">
+                        Encrypted data sent by Host Application (HEX)
                     </th>
-                    <td class="px-6 py-4">
-                        
+
+
+                    <!-- ROW 1 : PC KEY 1 VALUE -->
+                    <td id="PCkeyOneValue" class="text-center border border-1 border-gray-300 px-6 py-4 ">
+
+                    </td>
+
+                    <!-- ROW 1 : PC RESULT 1 VALUE (ENCRYPTED RESULT DATA) -->
+                    <td class="text-center border border-1 border-gray-300 px-6 py-4">
+                        <span class="rounded-xl text-white " id="PCResultOneValue"></span>
                     </td>
 
 
+                </tr>
+
+
+                <!-- ROW 2 : ENCRYPTED DATA RECEIVED FROM THE STM32 BOARD AND DISPLAYED IT IN THE HOST APPLICATION-->
+                <tr class="bg-white border-b ">
+                    <th scope="row"
+                        class="text-center bg-gray-100 text-gray-500 border border-1 border-gray-300 font-medium pl-6 pr-1  py-4 whitespace-nowrap ">
+                        Encrypted Data received from STM32 Board (HEX)
+                    </th>
+
+                    <!-- ROW 2 : BOARD KEY 2 VALUE -->
+                    <td id="BoardKeyTwoValue"
+                        class="text-center bg-gray-100 border border-1 border-gray-300 px-6 py-4">
+
+                    </td>
+
+
+                    <!-- ROW 2 : BOARD RESULT 2 VALUE (ENCRYPTED RESULT DATA)-->
+                    <td class="text-center bg-gray-100 border border-1 border-gray-300 px-6 py-4">
+                        <span class="rounded-xl text-white " id="BoardResultTwoValue"></span>
+                    </td>
+                </tr>
+
+
+                <!-- ROW 3 : DATA DECRYPTED BY HOST APPLICATION -->
+                <tr class="bg-white">
+                    <th scope="row"
+                        class="text-center text-gray-500 font-medium pl-6 pr-1  py-4 whitespace-nowrap ">
+                        Data decrypted by Host Application
+                    </th>
+
+                    <!-- ROW 3 : PC KEY 2 VALUE -->
+                    <td id="PCKeyTwoValue" class="text-center border border-1 border-gray-300 px-6 py-4">
+
+                    </td>
+
+                    <!-- ROW 3 : PC RESULT TWO VALUE (DECRYPTED RESULT DATA) -->
+                    <td class="text-center border border-1 border-gray-300 px-6 py-4">
+                        <span class="rounded-xl text-white " id="PCResultTwoValue"></span>
+                    </td>
                 </tr>
                 <tr class="bg-white border-b ">
-                    <th scope="row" class="text-gray-500 font-medium px-6 py-4 whitespace-nowrap ">
-                        Encrypted Data received from STM32 Board 
+                    <th scope="row"
+                        class="row-span-2 text-center bg-gray-100 text-gray-500 border border-1 border-gray-300 font-medium pl-6 pr-1  py-4 whitespace-nowrap ">
+                        AES Authentication Status
                     </th>
-                    <td class="px-6 py-4">
-                        
+
+                    <td colspan="2" class="text-center bg-gray-100 border border-1 border-gray-300 px-6 py-4">
+                        <span class="rounded-xl text-white" id="resultStatus"></span>
                     </td>
                 </tr>
-                <tr class="bg-white">
-                    <th scope="row" class="text-gray-500 font-medium px-6 py-4 whitespace-nowrap ">
-                        Data decrypted by Host Application 
-                    </th>
-                    <td class="px-6 py-4">
-                        
-                    </td>
-                </tr>
+
             </tbody>
         </table>
     </div>
 
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const submitButton = document.getElementById('submitButton');
+            const resultTable = document.getElementById('resultTable');
+
+            submitButton.addEventListener('click', function () {
+                // Toggle classes to show/hide the table with smooth transition
+                resultTable.classList.toggle('hidden-table');
+                resultTable.classList.toggle('visible-table');
+            });
+        });
+
+    </script>
 
 </body>
 
