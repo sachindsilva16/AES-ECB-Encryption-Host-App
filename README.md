@@ -54,9 +54,9 @@ This project is licensed under the [MIT License](LICENSE).
 ## Preview of Host Application
 
 
-[](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20App%20-%20Disconnected.png)
+![](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20App%20-%20Disconnected.png)
 
-[](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20App%20-%20Connected.png)
+![](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20App%20-%20Connected.png)
 
 
-[](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20application%20-%20Final%20output.png)
+![](https://github.com/sachindsilva16/AES---ECB---User-Interface/blob/main/Host%20application%20-%20Final%20output.png)
