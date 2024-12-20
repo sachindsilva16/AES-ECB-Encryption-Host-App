@@ -43,7 +43,7 @@ To contribute to this project, follow these steps:
 6. Create a pull request to merge your changes into the main repository.
 
 ## Credits
-- **Developer**: [サチン・ドゥシルバ](https://github.com/sachindsilva16)
+- **Developer**: [Sachin Dsilva](https://github.com/sachindsilva16)
 - **Icons**: Font Awesome (https://fontawesome.com/)
 - **Fonts**: Inter (https://fonts.google.com/specimen/Inter)
 
